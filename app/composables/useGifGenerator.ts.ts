@@ -9,22 +9,13 @@ type TenorResponse = {
   results: TenorResult[];
 };
 
-function fromObjectToQuerystring(obj: Record<string, unknown>): string {
-  return Object.keys(obj)
-    .reduce<string[]>((acc, key) => {
-      acc.push(`${key}=${obj[key]}`);
-      return acc;
-    }, [])
-    .join("&");
-}
+type UseGifGeneratorOptions = {
+  limit?: number;
+};
 
 export function useGifGenerator(
   text: Ref<string | undefined>,
-  {
-    limit = 5,
-  }: {
-    limit?: number;
-  }
+  { limit = 5 }: UseGifGeneratorOptions
 ) {
   const { tenorKey } = useRuntimeConfig().public;
 
@@ -44,10 +35,10 @@ export function useGifGenerator(
       ar_range: "standard",
     });
 
-    const searchUrl = `https://tenor.googleapis.com/v2/search?${searchQuery}`;
+    const response = await $fetch<TenorResponse>(
+      `https://tenor.googleapis.com/v2/search?${searchQuery}`
+    );
 
-    const response = await $fetch<TenorResponse>(searchUrl);
-    console.log(response);
     return response.results.map((result) => {
       return result.media_formats.mediumgif.url;
     });

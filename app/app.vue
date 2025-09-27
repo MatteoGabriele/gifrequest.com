@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Gif from "@/components/Gif.vue";
-import { PhArrowClockwise } from "@phosphor-icons/vue";
+import { PhArrowClockwise, PhGitMerge } from "@phosphor-icons/vue";
 
 const ANSWER_AMOUNT = 4;
 
@@ -115,19 +115,13 @@ function getStatus(name: string): "success" | "selected" | undefined {
 
 <template>
   <div class="flex flex-col gap-6">
-    <div v-if="pending">searching...</div>
-    <div
-      v-else-if="currentGif"
-      class="flex flex-col gap-2 justify-center items-center p-6"
-    >
-      <header class="mb-6 text-center">
-        <h1 class="text-6xl text-neutral-100 font-bold font-display">GifHub</h1>
-        <p class="text-neutral-500 text-lg">
-          Push your knowledge, pull the right repo
-        </p>
+    <div class="flex flex-col gap-2 justify-center items-center p-6">
+      <header class="mt-12 mb-6 text-center">
+        <h1 class="text-6xl text-neutral-800 font-bold font-display">GifHub</h1>
+        <p class="text-neutral-400">Push your knowledge, pull the right repo</p>
       </header>
       <div
-        class="relative overflow-hidden min-w-[480px] rounded-4xl shadow-[0_10px_40px_4px_rgba(0,0,0,0.4)] bg-neutral-100"
+        class="relative overflow-hidden rounded-4xl shadow-[0_10px_40px_4px_rgba(0,0,0,0.4)] bg-neutral-100"
       >
         <Gif :url="currentGif" :key="currentGif" />
         <div class="relative border-t-1 border-t-neutral-200">
@@ -140,8 +134,11 @@ function getStatus(name: string): "success" | "selected" | undefined {
         </div>
       </div>
 
-      <form @submit.prevent="handleAnswer" class="mt-6">
-        <ul class="grid grid-cols-2 gap-2">
+      <form
+        @submit.prevent="handleAnswer"
+        class="mt-6 flex flex-col items-center justify-center"
+      >
+        <ul class="grid sm:grid-cols-2 gap-2">
           <li v-for="repo in repos" :key="repo.name">
             <CheckboxButton
               name="repo"
@@ -151,15 +148,21 @@ function getStatus(name: string): "success" | "selected" | undefined {
               :value="repo.name"
             >
               {{ repo.name }}
+              <span class="bg-neutral-200 rounded-full px-2 text-xs">{{
+                repo.stars
+              }}</span>
             </CheckboxButton>
           </li>
         </ul>
         <button
           :disabled="!selectedRepoName"
-          class="w-full rounded-full px-6 py-4 bg-black text-white mt-6 disabled:opacity-20"
+          class="rounded-md px-6 py-2 bg-green-600 hover:bg-green-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:border-neutral-400 text-white font-medium text-sm border border-green-700 shadow-sm transition-colors duration-200 mt-6 disabled:cursor-not-allowed disabled:hover:bg-green-600 flex items-center justify-center"
           type="submit"
         >
-          Submit
+          <span class="flex items-center gap-2">
+            <PhGitMerge />
+            Merge
+          </span>
         </button>
       </form>
     </div>

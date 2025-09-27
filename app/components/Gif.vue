@@ -2,7 +2,7 @@
 import { PhSpinner } from "@phosphor-icons/vue";
 
 defineProps<{
-  url: string;
+  url: string | undefined;
 }>();
 
 const isPending = ref<boolean>(true);
@@ -15,7 +15,12 @@ function handleLoaded() {
 
 <template>
   <div
-    class="relative aspect-auto flex items-center justify-center min-h-[200px] min-w-[200px] max-h-[400px] w-full overflow-hidden"
+    :class="[
+      'relative aspect-auto flex items-center justify-center sm:min-w-[480px] max-h-[400px] w-full overflow-hidden',
+      {
+        'h-[400px]': isPending,
+      },
+    ]"
   >
     <div
       class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"

@@ -3,7 +3,3 @@
 @theme {
   --font-display: "Inter", "sans-serif";
 }
-
-body {
-  @apply bg-neutral-900 text-neutral-400;
-}
