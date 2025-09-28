@@ -1,7 +1,3 @@
-type UseReposOptions = {
-  amount?: number;
-};
-
 export type GithubResponseRepo = {
   name: string;
   stargazers_count: number;
@@ -18,21 +14,29 @@ export type Repo = {
   url: string;
 };
 
-export default function useRepos(options?: UseReposOptions) {
+const ITEMS_COUNT = 4;
+
+export default function useRepos() {
   return useAsyncData(
     () => {
-      const per_page = 30;
-      const maxPages = Math.floor(1000 / per_page);
-      const randomPage = Math.floor(Math.random() * maxPages) + 1;
+      const perPage = 30;
+      const maxPages = Math.floor(1000 / perPage);
+      const randomPage = Math.floor(Math.random() * maxPages);
 
-      const url = `https://api.github.com/search/repositories?q=stars:>=500&sort=stars&order=desc&per_page=${per_page}&page=${randomPage}`;
+      const query = fromObjectToQuerystring({
+        q: "stars:>=500",
+        per_page: perPage,
+        page: randomPage,
+      });
+
+      const url = `https://api.github.com/search/repositories?${query}`;
 
       return $fetch<GithubResponse>(url);
     },
     {
       transform: (data) => {
         return shuffle(data.items)
-          .slice(0, options?.amount ?? 4)
+          .slice(0, ITEMS_COUNT)
           .map((r) => ({
             name: r.name,
             stars: r.stargazers_count,

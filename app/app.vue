@@ -1,73 +1,26 @@
 <script setup lang="ts">
-import { PhArrowClockwise, PhGitFork } from "@phosphor-icons/vue";
+import { PhGitFork } from "@phosphor-icons/vue";
 
-const ANSWER_AMOUNT = 4;
+const { data: repos, pending: pendingRepos } = useRepos();
+const answer = computed<Repo | undefined>(() => {
+  if (!repos.value) {
+    return;
+  }
 
-type GithubResponseRepo = {
-  name: string;
-  stargazers_count: number;
-  html_url: string;
-};
-
-type GithubResponse = {
-  items: GithubResponseRepo[];
-};
-
-type Repo = {
-  name: string;
-  stars: number;
-  url: string;
-};
-
-const repos = ref<Repo[]>([]);
-const answer = ref<Repo | undefined>();
+  return shuffle(repos.value)[0];
+});
 const answerName = computed<string | undefined>(() => answer.value?.name);
 const selectedRepoName = ref<string | undefined>();
 
 const { generate } = useGifGenerator();
-const { execute, data: gifs } = await useAsyncData(() => generate(answerName));
-
-async function getRandomStarredRepos(): Promise<Repo[]> {
-  const perPage = 30;
-  const maxPages = Math.floor(1000 / perPage);
-  const randomPage = Math.floor(Math.random() * maxPages);
-
-  const query = fromObjectToQuerystring({
-    q: "stars:>=500",
-    per_page: perPage,
-    page: randomPage,
-  });
-
-  const url = `https://api.github.com/search/repositories?${query}`;
-
-  const data = await $fetch<GithubResponse>(url);
-
-  if (!data.items) {
-    return [];
+const { data: gifs, pending: pendingGifs } = useAsyncData(
+  () => {
+    return generate(answerName);
+  },
+  {
+    watch: [answerName],
   }
-
-  return shuffle(data.items)
-    .slice(0, ANSWER_AMOUNT)
-    .map((r) => ({
-      name: r.name,
-      stars: r.stargazers_count,
-      url: r.html_url,
-    }));
-}
-
-async function loadRepos() {
-  const response = await getRandomStarredRepos();
-
-  repos.value = response;
-  answer.value = shuffle(response)[0];
-
-  return execute();
-}
-
-const { pending } = await useAsyncData(() => loadRepos(), {
-  lazy: true,
-  server: false,
-});
+);
 
 const hasSubmitted = ref<boolean>(false);
 function handleAnswer(): void {
@@ -87,8 +40,9 @@ function getCheckboxStatus(name: string): CheckboxSatus {
 </script>
 
 <template>
-  <Confetti v-if="hasSubmitted && selectedRepoName === answerName" />
   <div class="flex flex-col h-screen">
+    <Confetti v-if="hasSubmitted && selectedRepoName === answerName" />
+
     <div
       class="flex h-full flex-1 flex-col gap-2 justify-center items-center p-6"
     >
@@ -99,19 +53,20 @@ function getCheckboxStatus(name: string): CheckboxSatus {
         <p class="text-neutral-400">Push your knowledge, pull the right repo</p>
       </header>
 
-      <MainLoader v-if="pending" />
+      <MainLoader v-if="pendingRepos || pendingGifs" />
       <template v-else>
         <Gif
-          v-if="hasSubmitted && selectedRepoName === answerName"
+          v-show="hasSubmitted && selectedRepoName === answerName"
           key="success"
           url="https://media1.tenor.com/m/0Sh7u1lRsyEAAAAC/wedding-crasher-hro.gif"
         />
         <Gif
-          v-else-if="hasSubmitted && selectedRepoName !== answerName"
+          v-show="hasSubmitted && selectedRepoName !== answerName"
           key="error"
           url="https://media1.tenor.com/m/DKj_JQhjAo8AAAAd/wrong-incorrect.gif"
         />
-        <GifSlider v-else key="slider" :gifs="gifs" />
+
+        <GifSlider v-if="!hasSubmitted" key="slider" :gifs="gifs" />
 
         <div class="mt-2 text-center">
           <p class="text-neutral-600 text-sm">
