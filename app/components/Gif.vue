@@ -16,10 +16,7 @@ function handleLoaded() {
 <template>
   <div
     :class="[
-      'relative aspect-auto flex items-center justify-center sm:min-w-[480px] max-h-[400px] w-full overflow-hidden',
-      {
-        'h-[400px]': isPending,
-      },
+      'relative h-[280px] w-[280px] md:h-[400px] md:w-[500px] aspect-auto overflow-hidden',
     ]"
   >
     <div
@@ -31,6 +28,7 @@ function handleLoaded() {
     <img
       @load="handleLoaded"
       :class="[
+        'w-full h-full object-cover',
         {
           'opacity-0': isPending,
         },

@@ -3,3 +3,7 @@
 @theme {
   --font-display: "Inter", "sans-serif";
 }
+
+body {
+  @apply h-full;
+}
