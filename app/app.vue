@@ -24,31 +24,21 @@ const answer = ref<Repo | undefined>();
 const answerName = computed<string | undefined>(() => answer.value?.name);
 const selectedRepoName = ref<string | undefined>();
 
-const { execute, data: gifUrls } = await useGifGenerator(answerName, {
-  limit: ANSWER_AMOUNT,
-});
-const currentGifIndex = ref<number>(0);
-const currentGif = computed<string | undefined>(() => {
-  return gifUrls.value?.[currentGifIndex.value];
-});
-function refreshGif(): void {
-  if (!gifUrls.value) {
-    return;
-  }
-
-  if (currentGifIndex.value >= gifUrls.value.length - 1) {
-    currentGifIndex.value = 0;
-  } else {
-    currentGifIndex.value++;
-  }
-}
+const { generate } = useGifGenerator();
+const { execute, data: gifs } = await useAsyncData(() => generate(answerName));
 
 async function getRandomStarredRepos(): Promise<Repo[]> {
-  const per_page = 30;
-  const maxPages = Math.floor(1000 / per_page);
-  const randomPage = Math.floor(Math.random() * maxPages) + 1;
+  const perPage = 30;
+  const maxPages = Math.floor(1000 / perPage);
+  const randomPage = Math.floor(Math.random() * maxPages);
 
-  const url = `https://api.github.com/search/repositories?q=stars:>=500&per_page=${per_page}&page=${randomPage}`;
+  const query = fromObjectToQuerystring({
+    q: "stars:>=500",
+    per_page: perPage,
+    page: randomPage,
+  });
+
+  const url = `https://api.github.com/search/repositories?${query}`;
 
   const data = await $fetch<GithubResponse>(url);
 
@@ -84,7 +74,8 @@ function handleAnswer(): void {
   hasSubmitted.value = true;
 }
 
-function getStatus(name: string): "success" | "selected" | undefined {
+type CheckboxSatus = "success" | "selected" | undefined;
+function getCheckboxStatus(name: string): CheckboxSatus {
   if (name === answerName.value && hasSubmitted.value) {
     return "success";
   }
@@ -96,6 +87,7 @@ function getStatus(name: string): "success" | "selected" | undefined {
 </script>
 
 <template>
+  <Confetti v-if="hasSubmitted && selectedRepoName === answerName" />
   <div class="flex flex-col h-screen">
     <div
       class="flex h-full flex-1 flex-col gap-2 justify-center items-center p-6"
@@ -107,27 +99,19 @@ function getStatus(name: string): "success" | "selected" | undefined {
         <p class="text-neutral-400">Push your knowledge, pull the right repo</p>
       </header>
 
-      <div v-if="pending">
-        <ul>
-          <li>> Running GifHub pipeline...</li>
-          <li>> Linting memes...</li>
-          <li>> Deploying humor...</li>
-          <li>> Success!</li>
-        </ul>
-      </div>
+      <MainLoader v-if="pending" />
       <template v-else>
-        <div
-          class="relative overflow-hidden rounded-4xl border border-neutral-200 bg-neutral-100"
-        >
-          <Gif :url="currentGif" :key="currentGif" />
-
-          <button
-            class="bottom-4 right-4 absolute hover:scale-110 duration-200 transition-transform size-12 bg-white text-neutral-800 flex items-center justify-center rounded-full shadow-[0_0_10px_4px_rgba(0,0,0,0.2)]"
-            @click="refreshGif"
-          >
-            <PhArrowClockwise weight="bold" :size="24" />
-          </button>
-        </div>
+        <Gif
+          v-if="hasSubmitted && selectedRepoName === answerName"
+          key="success"
+          url="https://media1.tenor.com/m/0Sh7u1lRsyEAAAAC/wedding-crasher-hro.gif"
+        />
+        <Gif
+          v-else-if="hasSubmitted && selectedRepoName !== answerName"
+          key="error"
+          url="https://media1.tenor.com/m/DKj_JQhjAo8AAAAd/wrong-incorrect.gif"
+        />
+        <GifSlider v-else key="slider" :gifs="gifs" />
 
         <div class="mt-2 text-center">
           <p class="text-neutral-600 text-sm">
@@ -145,7 +129,7 @@ function getStatus(name: string): "success" | "selected" | undefined {
                 name="repo"
                 :disabled="hasSubmitted"
                 v-model:selected="selectedRepoName"
-                :status="getStatus(repo.name)"
+                :status="getCheckboxStatus(repo.name)"
                 :value="repo.name"
               >
                 {{ repo.name }}
@@ -155,6 +139,7 @@ function getStatus(name: string): "success" | "selected" | undefined {
               </CheckboxButton>
             </li>
           </ul>
+
           <button
             :disabled="!selectedRepoName"
             class="rounded-md px-6 py-2 active:scale-95 bg-green-600 hover:bg-green-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:border-neutral-400 text-white font-medium text-sm border border-green-700 shadow-sm transition-all duration-200 mt-6 disabled:cursor-not-allowed flex items-center justify-center"
@@ -169,8 +154,6 @@ function getStatus(name: string): "success" | "selected" | undefined {
       </template>
     </div>
 
-    <footer class="p-4 flex items-center justify-end">
-      <img class="h-3" src="~/assets/images/tenor_logo.svg" alt="" />
-    </footer>
+    <MainFooter />
   </div>
 </template>

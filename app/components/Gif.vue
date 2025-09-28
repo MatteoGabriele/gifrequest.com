@@ -16,7 +16,7 @@ function handleLoaded() {
 <template>
   <div
     :class="[
-      'relative h-[280px] w-[280px] md:h-[400px] md:w-[500px] aspect-auto overflow-hidden',
+      'relative rounded-4xl h-[280px] w-[280px] md:h-[400px] md:w-[500px] aspect-auto overflow-hidden',
     ]"
   >
     <div

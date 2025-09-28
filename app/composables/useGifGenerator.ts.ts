@@ -9,29 +9,29 @@ type TenorResponse = {
   results: TenorResult[];
 };
 
-type UseGifGeneratorOptions = {
-  limit?: number;
+type useGifGeneratorReturn = {
+  generate: (
+    searchTerm: MaybeRef<string | undefined>
+  ) => Promise<string[] | undefined>;
 };
 
-export function useGifGenerator(
-  text: Ref<string | undefined>,
-  { limit = 5 }: UseGifGeneratorOptions
-) {
+export function useGifGenerator(): useGifGeneratorReturn {
   const { tenorKey } = useRuntimeConfig().public;
 
-  async function generateGif(
-    searchTerm: string | undefined
+  async function generate(
+    searchTerm: MaybeRef<string | undefined>
   ): Promise<string[] | undefined> {
-    if (!text) {
+    const searchTermRaw = unref(searchTerm);
+    if (!searchTermRaw) {
       return;
     }
 
     const clientkey = "repo_roulette";
     const searchQuery = fromObjectToQuerystring({
-      q: searchTerm,
+      q: searchTermRaw,
       key: tenorKey,
       client_key: clientkey,
-      limit,
+      limit: 5,
       ar_range: "standard",
     });
 
@@ -44,7 +44,7 @@ export function useGifGenerator(
     });
   }
 
-  return useAsyncData(() => generateGif(text.value), {
-    immediate: false,
-  });
+  return {
+    generate,
+  };
 }
