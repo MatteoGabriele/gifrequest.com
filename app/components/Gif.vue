@@ -14,21 +14,14 @@ function handleLoaded() {
 </script>
 
 <template>
-  <div
-    :class="[
-      'relative rounded-4xl h-[280px] w-[280px] md:h-[400px] md:w-[500px] aspect-auto overflow-hidden',
-    ]"
-  >
-    <div
-      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-      v-if="isPending"
-    >
+  <div class="relative flex items-center justify-center aspect-3/2">
+    <div class="p-8" v-if="isPending">
       <PhSpinner :size="48" class="animate-spin" />
     </div>
     <img
       @load="handleLoaded"
       :class="[
-        'w-full h-full object-cover',
+        'absolute w-full h-full object-cover',
         {
           'opacity-0': isPending,
         },

@@ -2,19 +2,19 @@
 import { PhArrowClockwise } from "@phosphor-icons/vue";
 
 const props = defineProps<{
-  gifs?: string[];
+  items?: string[];
 }>();
 
 const currentGifIndex = ref<number>(0);
 const currentGif = computed<string | undefined>(() => {
-  return props.gifs?.[currentGifIndex.value];
+  return props.items?.[currentGifIndex.value];
 });
 function refreshGif(): void {
-  if (!props.gifs) {
+  if (!props.items) {
     return;
   }
 
-  if (currentGifIndex.value >= props.gifs.length - 1) {
+  if (currentGifIndex.value >= props.items.length - 1) {
     currentGifIndex.value = 0;
   } else {
     currentGifIndex.value++;
@@ -23,7 +23,7 @@ function refreshGif(): void {
 </script>
 
 <template>
-  <div class="relative rounded-4xl border border-neutral-200 bg-neutral-100">
+  <GifContainer>
     <Gif :url="currentGif" :key="currentGif" />
 
     <button
@@ -32,5 +32,5 @@ function refreshGif(): void {
     >
       <PhArrowClockwise weight="bold" :size="24" />
     </button>
-  </div>
+  </GifContainer>
 </template>

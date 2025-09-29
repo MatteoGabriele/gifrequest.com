@@ -17,5 +17,5 @@ export default defineNuxtConfig({
     plugins: [tailwindcss()],
   },
 
-  modules: ["@nuxt/fonts"],
+  modules: ["@nuxt/fonts", "motion-v/nuxt"],
 });

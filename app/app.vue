@@ -1,72 +1,48 @@
 <script setup lang="ts">
-import { PhGitFork } from "@phosphor-icons/vue";
+import { PhGitFork, PhSpinner } from "@phosphor-icons/vue";
 
 const { data: repos, pending: pendingRepos } = useRepos();
-const answer = computed<Repo | undefined>(() => {
-  if (!repos.value) {
-    return;
-  }
-
+const pickedRepo = computed<Repo | undefined>(() => {
   return shuffle(repos.value)[0];
 });
-const answerName = computed<string | undefined>(() => answer.value?.name);
+const pickedRepoName = computed<string | undefined>(() => {
+  return pickedRepo.value?.name;
+});
+
+const { data: gifs, pending: pendingGifs } = useGifs(pickedRepoName);
+
 const selectedRepoName = ref<string | undefined>();
 
-const { generate } = useGifGenerator();
-const { data: gifs, pending: pendingGifs } = useAsyncData(
-  () => {
-    return generate(answerName);
-  },
-  {
-    watch: [answerName],
-  }
-);
-
 const hasSubmitted = ref<boolean>(false);
-function handleAnswer(): void {
+function handleSubmit(): void {
   hasSubmitted.value = true;
 }
 
-type CheckboxSatus = "success" | "selected" | undefined;
-function getCheckboxStatus(name: string): CheckboxSatus {
-  if (name === answerName.value && hasSubmitted.value) {
-    return "success";
-  }
-
-  if (name === selectedRepoName.value) {
-    return "selected";
-  }
-}
+const isAnswerCorrect = computed<boolean>(() => {
+  return hasSubmitted.value && selectedRepoName.value === pickedRepoName.value;
+});
 </script>
 
 <template>
-  <div class="flex flex-col h-screen">
-    <Confetti v-if="hasSubmitted && selectedRepoName === answerName" />
+  <NuxtLayout>
+    <Confetti v-if="isAnswerCorrect" />
+    <div class="flex w-full justify-center">
+      <div
+        class="flex items-center justify-center gap-2 text-neutral-500"
+        v-if="pendingGifs || pendingRepos"
+      >
+        <PhSpinner class="animate-spin" />
+        <span>Fetching the best repositories...</span>
+      </div>
 
-    <div
-      class="flex h-full flex-1 flex-col gap-2 justify-center items-center p-6"
-    >
-      <header class="mt-4 md:mt-8 mb-6 text-center">
-        <h1 class="text-6xl text-neutral-800 font-bold font-display mb-2">
-          GifRequest
-        </h1>
-        <p class="text-neutral-400">Push your knowledge, pull the right repo</p>
-      </header>
-
-      <MainLoader v-if="pendingRepos || pendingGifs" />
-      <template v-else>
-        <Gif
-          v-show="hasSubmitted && selectedRepoName === answerName"
-          key="success"
-          url="https://media1.tenor.com/m/0Sh7u1lRsyEAAAAC/wedding-crasher-hro.gif"
-        />
-        <Gif
-          v-show="hasSubmitted && selectedRepoName !== answerName"
-          key="error"
-          url="https://media1.tenor.com/m/DKj_JQhjAo8AAAAd/wrong-incorrect.gif"
-        />
-
-        <GifSlider v-if="!hasSubmitted" key="slider" :gifs="gifs" />
+      <div
+        v-else
+        class="w-full flex flex-col items-center gap-2 justify-center"
+      >
+        <div class="w-full sm:max-w-xl 2xl:max-w-3xl">
+          <GameStatusGif v-if="hasSubmitted" :is-correct="isAnswerCorrect" />
+          <GifSlider v-else :items="gifs" />
+        </div>
 
         <div class="mt-2 text-center">
           <p class="text-neutral-600 text-sm">
@@ -75,23 +51,19 @@ function getCheckboxStatus(name: string): CheckboxSatus {
         </div>
 
         <form
-          @submit.prevent="handleAnswer"
+          @submit.prevent="handleSubmit"
           class="mt-2 flex flex-col items-center justify-center"
         >
           <ul class="grid sm:grid-cols-2 gap-2">
             <li v-for="repo in repos" :key="repo.name">
-              <CheckboxButton
-                name="repo"
+              <AnswerButton
+                v-model:value="selectedRepoName"
+                :error="hasSubmitted && pickedRepoName === repo.name"
+                :success="hasSubmitted && selectedRepoName === repo.name"
+                :selected="selectedRepoName === repo.name"
                 :disabled="hasSubmitted"
-                v-model:selected="selectedRepoName"
-                :status="getCheckboxStatus(repo.name)"
-                :value="repo.name"
-              >
-                {{ repo.name }}
-                <span class="bg-neutral-200 rounded-full px-2 text-xs">{{
-                  repo.stars
-                }}</span>
-              </CheckboxButton>
+                :repo="repo"
+              />
             </li>
           </ul>
 
@@ -106,9 +78,7 @@ function getCheckboxStatus(name: string): CheckboxSatus {
             </span>
           </button>
         </form>
-      </template>
+      </div>
     </div>
-
-    <MainFooter />
-  </div>
+  </NuxtLayout>
 </template>

@@ -14,19 +14,24 @@ export type Repo = {
   url: string;
 };
 
-const ITEMS_COUNT = 4;
-
 export default function useRepos() {
   return useAsyncData(
+    "repos",
     () => {
-      const perPage = 30;
+      const perPage = 4;
       const maxPages = Math.floor(1000 / perPage);
-      const randomPage = Math.floor(Math.random() * maxPages);
-
+      const page = Math.floor(Math.random() * maxPages) + 1;
       const query = fromObjectToQuerystring({
-        q: "stars:>=500",
+        q: [
+          "stars:>200",
+          "pushed:>2024-01-01",
+          "fork:false",
+          "archived:false",
+        ].join(" "),
+        sort: "stars",
+        order: "desc",
         per_page: perPage,
-        page: randomPage,
+        page,
       });
 
       const url = `https://api.github.com/search/repositories?${query}`;
@@ -34,14 +39,13 @@ export default function useRepos() {
       return $fetch<GithubResponse>(url);
     },
     {
+      default: () => [],
       transform: (data) => {
-        return shuffle(data.items)
-          .slice(0, ITEMS_COUNT)
-          .map((r) => ({
-            name: r.name,
-            stars: r.stargazers_count,
-            url: r.html_url,
-          }));
+        return shuffle(data.items).map((r) => ({
+          name: r.name,
+          stars: r.stargazers_count,
+          url: r.html_url,
+        }));
       },
     }
   );
