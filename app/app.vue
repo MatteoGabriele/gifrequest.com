@@ -164,14 +164,18 @@ async function handleRetry() {
 
             <div
               :class="
-                cn('flex gap-2 items-center mt-2 opacity-0', {
-                  'opacity-100': streakCount > 1,
+                cn('flex gap-2 items-center opacity-0 text-sm relative top-4', {
+                  'opacity-100': streakCount,
                 })
               "
             >
-              <p class="text-orange-600">
-                <span class="text-lg">🔥</span> {{ streakCount }} merges in a
-                row!
+              <p class="text-orange-600" v-if="streakCount > 1">
+                <span class="text-base">🔥</span>
+                {{ streakCount }} merges in a row and no conflicts!
+              </p>
+              <p v-else class="text-neutral-500">
+                <span class="text-base">🌱</span>
+                First merge landed, your streak starts to grow with the next one
               </p>
             </div>
           </div>
