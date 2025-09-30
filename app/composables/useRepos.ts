@@ -16,6 +16,7 @@ export type Repo = {
 
 export default function useRepos() {
   return useAsyncData(
+    "repos",
     () => {
       const perPage = 4;
       const maxPages = Math.floor(1000 / perPage);
