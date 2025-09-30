@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { PhGitMerge, PhShuffle, PhSpinner } from "@phosphor-icons/vue";
+import {
+  PhArrowRight,
+  PhFire,
+  PhGitBranch,
+  PhGitMerge,
+  PhSpinner,
+  PhXCircle,
+} from "@phosphor-icons/vue";
 
 const { data: repos, pending: pendingRepos, refresh } = useRepos();
 const pickedRepo = computed<Repo | undefined>(() => {
@@ -18,12 +25,37 @@ function handleSubmit(): void {
   hasSubmitted.value = true;
 }
 
+type GameStatus = "idle" | "success" | "error";
+const gameStatus = computed<GameStatus>(() => {
+  if (hasSubmitted.value) {
+    return selectedRepoName.value === pickedRepoName.value
+      ? "success"
+      : "error";
+  }
+
+  return "idle";
+});
+
 const isAnswerCorrect = computed<boolean>(() => {
-  return hasSubmitted.value && selectedRepoName.value === pickedRepoName.value;
+  return gameStatus.value === "success";
+});
+
+const streakCount = ref<number>(0);
+watch(isAnswerCorrect, (value) => {
+  if (value) {
+    streakCount.value++;
+  }
 });
 
 async function handleNext() {
   await refresh();
+  hasSubmitted.value = false;
+  selectedRepoName.value = null;
+}
+
+async function handleRetry() {
+  await refresh();
+  streakCount.value = 0;
   hasSubmitted.value = false;
   selectedRepoName.value = null;
 }
@@ -50,8 +82,22 @@ async function handleNext() {
           <GifSlider v-else :items="gifs" />
         </div>
 
-        <div class="mt-2 text-center">
-          <p class="text-neutral-600 text-sm">
+        <div class="mt-2 text-center text-sm">
+          <div
+            v-if="gameStatus === 'success'"
+            class="flex items-center gap-2 text-green-600"
+          >
+            <PhGitMerge weight="fill" size="20" />
+            <span>Gif request successfully merged</span>
+          </div>
+          <div
+            v-else-if="gameStatus === 'error'"
+            class="flex items-center gap-2 text-red-500"
+          >
+            <PhXCircle weight="fill" size="20" />
+            <span>Merging is blocked.</span>
+          </div>
+          <p v-else class="text-neutral-600">
             Pick the repository that matches the GIF
           </p>
         </div>
@@ -73,21 +119,41 @@ async function handleNext() {
             </li>
           </ul>
 
-          <div class="mt-6">
+          <div class="mt-6 text-center">
             <button
-              class="rounded-md px-6 py-2 active:scale-95 bg-purple-600 hover:bg-purple-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:border-neutral-400 text-white font-medium text-sm border border-purple-500 transition-all duration-200 disabled:cursor-not-allowed"
-              v-if="hasSubmitted"
+              v-if="gameStatus === 'success'"
+              class="rounded-md px-6 py-2 active:scale-95 bg-green-600 hover:bg-green-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:border-neutral-400 text-white font-medium text-sm border border-green-500 transition-all duration-200 disabled:cursor-not-allowed"
               @click="handleNext"
             >
               <span class="flex items-center gap-2">
-                <PhShuffle />
-                Fetch new repos
+                <PhArrowRight />
+                Next request
+              </span>
+            </button>
+
+            <button
+              class="rounded-md px-6 py-2 active:scale-95 bg-green-600 hover:bg-green-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:border-neutral-400 text-white font-medium text-sm border border-green-500 transition-all duration-200 disabled:cursor-not-allowed"
+              v-else-if="gameStatus === 'error'"
+              @click="handleRetry"
+            >
+              <span class="flex items-center gap-2">
+                <PhGitBranch />
+                Rebase and Retry
               </span>
             </button>
             <button
               v-else
               :disabled="!selectedRepoName"
-              class="rounded-md px-6 py-2 active:scale-95 bg-green-600 hover:bg-green-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:border-neutral-400 text-white font-medium text-sm border border-green-500 transition-all duration-200 disabled:cursor-not-allowed"
+              :class="
+                cn(
+                  'rounded-md px-6 py-2 active:scale-95 bg-green-100 text-green-700 font-medium text-sm border border-green-500 transition-all duration-200',
+                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-600',
+                  {
+                    'bg-green-600 hover:bg-green-700 text-white':
+                      selectedRepoName,
+                  }
+                )
+              "
               type="submit"
             >
               <span class="flex items-center gap-2">
@@ -95,6 +161,19 @@ async function handleNext() {
                 Merge
               </span>
             </button>
+
+            <div
+              :class="
+                cn('flex gap-2 items-center mt-2 opacity-0', {
+                  'opacity-100': streakCount > 1,
+                })
+              "
+            >
+              <p class="text-orange-600">
+                <span class="text-lg">🔥</span> {{ streakCount }} merges in a
+                row!
+              </p>
+            </div>
           </div>
         </form>
       </div>
