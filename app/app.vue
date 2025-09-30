@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
   PhArrowRight,
-  PhFire,
   PhGitBranch,
   PhGitMerge,
   PhSpinner,
