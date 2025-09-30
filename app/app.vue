@@ -7,7 +7,7 @@ import {
   PhXCircle,
 } from "@phosphor-icons/vue";
 
-const { data: repos, pending: pendingRepos, refresh } = useRepos();
+const { data: repos, pending: pendingRepos, refresh } = await useRepos();
 const pickedRepo = computed<Repo | undefined>(() => {
   return shuffle(repos.value)[0];
 });
@@ -15,7 +15,7 @@ const pickedRepoName = computed<string | undefined>(() => {
   return pickedRepo.value?.name;
 });
 
-const { data: gifs, pending: pendingGifs } = useGifs(pickedRepoName);
+const { data: gifs, pending: pendingGifs } = await useGifs(pickedRepoName);
 
 const selectedRepoName = ref<string | null>();
 

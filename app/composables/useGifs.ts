@@ -38,7 +38,7 @@ export function useGifs(searchTerm: MaybeRef<string | undefined>) {
     });
   }
 
-  return useAsyncData("gifs", loadGifs, {
+  return useAsyncData(loadGifs, {
     watch: [searchTermRef],
   });
 }
