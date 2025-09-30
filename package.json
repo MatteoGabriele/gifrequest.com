@@ -10,14 +10,10 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@giphy/js-fetch-api": "^5.7.0",
-    "@google/genai": "^1.21.0",
     "@nuxt/fonts": "^0.11.4",
     "@phosphor-icons/vue": "^2.2.1",
     "clsx": "^2.1.1",
-    "gsap": "^3.13.0",
-    "lodash.shuffle": "^4.2.0",
-    "motion-v": "^1.7.2",
+    "lodash.snakecase": "^4.1.1",
     "nuxt": "^4.1.2",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.13",
@@ -27,7 +23,6 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.13",
-    "@types/lodash.shuffle": "^4.2.9",
-    "unplugin-vue-components": "^29.1.0"
+    "@types/lodash.snakecase": "^4.1.9"
   }
 }

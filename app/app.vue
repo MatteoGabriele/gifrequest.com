@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { PhGitFork, PhSpinner } from "@phosphor-icons/vue";
+import { PhGitMerge, PhShuffle, PhSpinner } from "@phosphor-icons/vue";
 
-const { data: repos, pending: pendingRepos } = useRepos();
+const { data: repos, pending: pendingRepos, refresh } = useRepos();
 const pickedRepo = computed<Repo | undefined>(() => {
   return shuffle(repos.value)[0];
 });
@@ -11,7 +11,7 @@ const pickedRepoName = computed<string | undefined>(() => {
 
 const { data: gifs, pending: pendingGifs } = useGifs(pickedRepoName);
 
-const selectedRepoName = ref<string | undefined>();
+const selectedRepoName = ref<string | null>();
 
 const hasSubmitted = ref<boolean>(false);
 function handleSubmit(): void {
@@ -21,6 +21,12 @@ function handleSubmit(): void {
 const isAnswerCorrect = computed<boolean>(() => {
   return hasSubmitted.value && selectedRepoName.value === pickedRepoName.value;
 });
+
+async function handleNext() {
+  await refresh();
+  hasSubmitted.value = false;
+  selectedRepoName.value = null;
+}
 </script>
 
 <template>
@@ -67,16 +73,29 @@ const isAnswerCorrect = computed<boolean>(() => {
             </li>
           </ul>
 
-          <button
-            :disabled="!selectedRepoName"
-            class="rounded-md px-6 py-2 active:scale-95 bg-green-600 hover:bg-green-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:border-neutral-400 text-white font-medium text-sm border border-green-700 shadow-sm transition-all duration-200 mt-6 disabled:cursor-not-allowed flex items-center justify-center"
-            type="submit"
-          >
-            <span class="flex items-center gap-2">
-              <PhGitFork />
-              Fork it
-            </span>
-          </button>
+          <div class="mt-6">
+            <button
+              class="rounded-md px-6 py-2 active:scale-95 bg-purple-600 hover:bg-purple-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:border-neutral-400 text-white font-medium text-sm border border-purple-500 transition-all duration-200 disabled:cursor-not-allowed"
+              v-if="hasSubmitted"
+              @click="handleNext"
+            >
+              <span class="flex items-center gap-2">
+                <PhShuffle />
+                Fetch new repos
+              </span>
+            </button>
+            <button
+              v-else
+              :disabled="!selectedRepoName"
+              class="rounded-md px-6 py-2 active:scale-95 bg-green-600 hover:bg-green-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:border-neutral-400 text-white font-medium text-sm border border-green-500 transition-all duration-200 disabled:cursor-not-allowed"
+              type="submit"
+            >
+              <span class="flex items-center gap-2">
+                <PhGitMerge />
+                Merge
+              </span>
+            </button>
+          </div>
         </form>
       </div>
     </div>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { PhStar } from "@phosphor-icons/vue";
-import { computed } from "vue";
 
 const props = defineProps<{
   repo: Repo;
@@ -10,7 +9,7 @@ const props = defineProps<{
   disabled?: boolean;
 }>();
 
-const value = defineModel<string>("value");
+const value = defineModel<string | null>("value");
 
 const labelClasses = computed(() => {
   return cn(

@@ -1,3 +1,5 @@
+import snakecase from "lodash.snakecase";
+
 type TenorResult = {
   media_formats: {
     mediumgif: {
@@ -20,12 +22,14 @@ export function useGifs(searchTerm: MaybeRef<string | undefined>) {
 
     const clientkey = "repo_roulette";
     const searchQuery = fromObjectToQuerystring({
-      q: searchTermRef.value,
+      q: snakecase(searchTermRef.value).replaceAll("_", " "),
       key: tenorKey,
       client_key: clientkey,
       limit: 5,
       ar_range: "standard",
     });
+
+    console.log(`https://tenor.googleapis.com/v2/search?${searchQuery}`);
 
     const response = await $fetch<TenorResponse>(
       `https://tenor.googleapis.com/v2/search?${searchQuery}`
