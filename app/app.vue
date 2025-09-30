@@ -76,26 +76,25 @@ async function handleRetry() {
         v-else
         class="w-full flex flex-col items-center gap-2 justify-center"
       >
-        <div class="w-full sm:max-w-xl 2xl:max-w-3xl">
+        <div class="w-full sm:max-w-lg 2xl:max-w-3xl">
           <GameStatusGif v-if="hasSubmitted" :is-correct="isAnswerCorrect" />
           <GifSlider v-else :items="gifs" />
         </div>
 
         <div class="mt-2 text-center text-sm">
           <div
-            v-if="gameStatus === 'success'"
-            class="flex items-center gap-2 text-green-600"
-          >
-            <PhGitMerge weight="fill" size="20" />
-            <span>Gif request successfully merged</span>
-          </div>
-          <div
-            v-else-if="gameStatus === 'error'"
+            v-if="gameStatus === 'error'"
             class="flex items-center gap-2 text-red-500"
           >
             <PhXCircle weight="fill" size="20" />
             <span>Merging is blocked.</span>
           </div>
+          <p v-else-if="streakCount === 1" class="text-neutral-500">
+            🌱 First merge landed, your streak starts to grow with the next one
+          </p>
+          <p class="text-orange-600" v-else-if="streakCount > 1">
+            🔥 {{ streakCount }} merges in a row and no conflicts!
+          </p>
           <p v-else class="text-neutral-600">
             Pick the repository that matches the GIF
           </p>
@@ -160,23 +159,6 @@ async function handleRetry() {
                 Merge
               </span>
             </button>
-
-            <div
-              :class="
-                cn('flex gap-2 items-center opacity-0 text-sm relative top-4', {
-                  'opacity-100': streakCount,
-                })
-              "
-            >
-              <p class="text-orange-600" v-if="streakCount > 1">
-                <span class="text-base">🔥</span>
-                {{ streakCount }} merges in a row and no conflicts!
-              </p>
-              <p v-else class="text-neutral-500">
-                <span class="text-base">🌱</span>
-                First merge landed, your streak starts to grow with the next one
-              </p>
-            </div>
           </div>
         </form>
       </div>

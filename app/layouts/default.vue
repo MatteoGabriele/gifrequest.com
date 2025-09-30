@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import { PhHeart } from "@phosphor-icons/vue";
+import { PhHeart, PhMoon, PhSun } from "@phosphor-icons/vue";
 </script>
 
 <template>
   <div class="flex flex-col min-h-screen">
-    <div
+    <header
+      class="bg-white h-10 px-4 flex items-center justify-between"
+    ></header>
+
+    <main
       class="flex items-center justify-center h-full flex-1 flex-col gap-2 p-6"
     >
-      <header class="md:mt-4 mb-6 text-center">
+      <header class="mb-6 text-center">
         <h1 class="text-6xl text-neutral-800 font-bold font-display mb-2">
           GifRequest
         </h1>
@@ -15,9 +19,9 @@ import { PhHeart } from "@phosphor-icons/vue";
       </header>
 
       <slot />
-    </div>
+    </main>
 
-    <footer class="bg-white p-4 flex items-center justify-between">
+    <footer class="bg-white h-10 px-4 flex items-center justify-between">
       <div>
         <p class="text-xs text-neutral-500 flex items-center gap-1">
           Developed with <PhHeart weight="fill" size="10" /> by
