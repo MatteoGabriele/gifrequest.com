@@ -7,7 +7,17 @@ import {
   PhXCircle,
 } from "@phosphor-icons/vue";
 
-const { data: repos, pending: pendingRepos, refresh } = useRepos();
+const {
+  data: repos,
+  error: errorRepos,
+  pending: pendingRepos,
+  refresh,
+} = await useRepos();
+
+if (errorRepos.value) {
+  throw createError(errorRepos.value);
+}
+
 const pickedRepo = computed<Repo | undefined>(() => {
   return shuffle(repos.value)[0];
 });
@@ -15,7 +25,15 @@ const pickedRepoName = computed<string | undefined>(() => {
   return pickedRepo.value?.name;
 });
 
-const { data: gifs, pending: pendingGifs } = useGifs(pickedRepoName);
+const {
+  data: gifs,
+  pending: pendingGifs,
+  error: errorGif,
+} = useGifs(pickedRepoName);
+
+if (errorGif.value) {
+  throw createError(errorGif.value);
+}
 
 const selectedRepoName = ref<string | null>();
 
@@ -64,7 +82,7 @@ async function handleRetry() {
   <NuxtLayout>
     <Confetti v-if="isAnswerCorrect" />
     <div
-      class="flex w-full max-w-4xl min-h-[600px] 2xl:min-h-[720px] justify-center"
+      class="flex w-full max-w-4xl min-h-[600px] 2xl:min-h-[702px] justify-center"
     >
       <div
         class="flex items-center justify-center gap-2 text-neutral-500"
