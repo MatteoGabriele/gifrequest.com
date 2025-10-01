@@ -15,7 +15,7 @@ import { PhHeart, PhMoon, PhSun } from "@phosphor-icons/vue";
         <h1 class="text-6xl text-neutral-800 font-bold font-display mb-2">
           GifRequest
         </h1>
-        <p class="text-neutral-400">Push your knowledge, pull the right repo</p>
+        <p class="text-neutral-400">Push your limits, pull the right repo.</p>
       </header>
 
       <slot />

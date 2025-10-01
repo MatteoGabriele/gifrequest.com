@@ -14,7 +14,19 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: "Gif Request — Where PRs Meet GIFs",
+      title: "GifRequest — Merge Your Memes",
+      meta: [
+        { property: "og:title", content: "GifRequest — Merge Your Memes" },
+        {
+          property: "og:description",
+          content: "Push your limits, pull the right repo.",
+        },
+        {
+          property: "og:image",
+          content: "/gifrequest.jpg",
+        },
+        { property: "og:type", content: "website" },
+      ],
       link: [
         {
           rel: "icon",
