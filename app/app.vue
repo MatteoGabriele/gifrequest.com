@@ -63,7 +63,9 @@ async function handleRetry() {
 <template>
   <NuxtLayout>
     <Confetti v-if="isAnswerCorrect" />
-    <div class="flex w-full max-w-4xl min-h-[600px] justify-center">
+    <div
+      class="flex w-full max-w-4xl min-h-[600px] 2xl:min-h-[720px] justify-center"
+    >
       <div
         class="flex items-center justify-center gap-2 text-neutral-500"
         v-if="pendingGifs || pendingRepos"
