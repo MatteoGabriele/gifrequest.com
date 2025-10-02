@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PhHeart, PhMoon, PhSun } from "@phosphor-icons/vue";
+import { PhHeart } from "@phosphor-icons/vue";
 </script>
 
 <template>

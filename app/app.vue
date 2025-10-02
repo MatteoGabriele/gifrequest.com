@@ -13,7 +13,6 @@ const {
   pending: pendingRepos,
   refresh,
 } = await useRepos();
-
 if (errorRepos.value) {
   throw createError(errorRepos.value);
 }
@@ -82,109 +81,118 @@ async function handleRetry() {
   <NuxtLayout>
     <Confetti v-if="isAnswerCorrect" />
     <div class="flex w-full max-w-4xl justify-center">
-      <div
-        class="flex items-center justify-center gap-2 text-neutral-500"
-        v-if="pendingGifs || pendingRepos"
-      >
-        <PhSpinner class="animate-spin" />
-        <span>Conjuing the weirdest GIFs...</span>
-      </div>
-
-      <div
-        v-else
-        class="w-full flex flex-col items-center gap-2 justify-center"
-      >
+      <div class="w-full flex flex-col items-center gap-2 justify-center">
         <div class="w-full sm:max-w-lg 2xl:max-w-3xl">
-          <GameStatusGif v-if="hasSubmitted" :is-correct="isAnswerCorrect" />
+          <GifSlider
+            v-if="pendingGifs || pendingRepos"
+            :items="[
+              'https://media1.tenor.com/m/kbs-kzp0DYUAAAAC/static-tv.gif',
+            ]"
+          />
+          <GameStatusGif
+            v-else-if="hasSubmitted"
+            :is-correct="isAnswerCorrect"
+          />
           <GifSlider v-else :items="gifs" />
         </div>
 
-        <div class="mt-2 text-center">
-          <div
-            v-if="gameStatus === 'error'"
-            class="text-red-500 flex items-center flex-col justify-center"
-          >
-            <span class="flex items-center gap-2">
-              <PhXCircle weight="fill" size="20" />
-              <p>Merging is blocked.</p>
-            </span>
-            <p v-if="streakCount > 1" class="text-sm">
-              You had a {{ streakCount > 10 ? "amazing" : "good" }} run with
-              {{ streakCount }} consecutive wins!
-            </p>
-          </div>
-          <p v-else-if="streakCount === 1" class="text-neutral-500 text-sm">
-            🌱 First merge landed, your streak starts to grow with the next one
-          </p>
-          <p class="text-orange-600 text-sm" v-else-if="streakCount > 1">
-            🔥 {{ streakCount }} merges in a row and no conflicts!
-          </p>
-          <p v-else class="text-neutral-600">
-            Pick the repository that matches the GIF
-          </p>
+        <div
+          class="flex min-h-[180px] gap-2 items-center justify-center"
+          v-if="pendingGifs || pendingRepos"
+        >
+          <PhSpinner class="animate-spin" />
+          <p class="text-neutral-500">Conjuing the weirdest GIFs...</p>
         </div>
 
-        <form
-          @submit.prevent="handleSubmit"
-          class="mt-2 w-full sm:w-auto flex flex-col items-center justify-center"
-        >
-          <ul class="grid w-full sm:grid-cols-2 gap-2">
-            <li v-for="repo in repos" :key="repo.name">
-              <AnswerButton
-                v-model:value="selectedRepoName"
-                :error="hasSubmitted && pickedRepoName === repo.name"
-                :success="hasSubmitted && selectedRepoName === repo.name"
-                :selected="selectedRepoName === repo.name"
-                :disabled="hasSubmitted"
-                :repo="repo"
-              />
-            </li>
-          </ul>
-
-          <div class="mt-6 text-center">
-            <button
-              v-if="gameStatus === 'success'"
-              class="rounded-md px-6 py-2 active:scale-95 bg-green-600 hover:bg-green-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:border-neutral-400 text-white font-medium text-sm border border-green-500 transition-all duration-200 disabled:cursor-not-allowed"
-              @click="handleNext"
+        <template v-else>
+          <div class="mt-2 text-center">
+            <div
+              v-if="gameStatus === 'error'"
+              class="text-red-500 flex items-center flex-col justify-center"
             >
               <span class="flex items-center gap-2">
-                <PhArrowRight />
-                Next request
+                <PhXCircle weight="fill" size="20" />
+                <p>Merging is blocked.</p>
               </span>
-            </button>
-
-            <button
-              class="rounded-md px-6 py-2 active:scale-95 bg-green-600 hover:bg-green-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:border-neutral-400 text-white font-medium text-sm border border-green-500 transition-all duration-200 disabled:cursor-not-allowed"
-              v-else-if="gameStatus === 'error'"
-              @click="handleRetry"
-            >
-              <span class="flex items-center gap-2">
-                <PhGitBranch />
-                Rebase and Retry
-              </span>
-            </button>
-            <button
-              v-else
-              :disabled="!selectedRepoName"
-              :class="
-                cn(
-                  'rounded-md px-6 py-2 active:scale-95 bg-green-100 text-green-700 font-medium text-sm border border-green-500 transition-all duration-200',
-                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-600',
-                  {
-                    'bg-green-600 hover:bg-green-700 text-white':
-                      selectedRepoName,
-                  }
-                )
-              "
-              type="submit"
-            >
-              <span class="flex items-center gap-2">
-                <PhGitMerge />
-                Merge
-              </span>
-            </button>
+              <p v-if="streakCount > 1" class="text-sm">
+                You had a {{ streakCount > 10 ? "amazing" : "good" }} run with
+                {{ streakCount }} consecutive wins!
+              </p>
+            </div>
+            <p v-else-if="streakCount === 1" class="text-neutral-500 text-sm">
+              🌱 First merge landed, your streak starts to grow with the next
+              one
+            </p>
+            <p class="text-orange-600 text-sm" v-else-if="streakCount > 1">
+              🔥 {{ streakCount }} merges in a row and no conflicts!
+            </p>
+            <p v-else class="text-neutral-600">
+              Pick the repository that matches the GIF
+            </p>
           </div>
-        </form>
+
+          <form
+            @submit.prevent="handleSubmit"
+            class="mt-2 w-full sm:w-auto flex flex-col items-center justify-center"
+          >
+            <ul class="grid w-full sm:grid-cols-2 gap-2">
+              <li v-for="repo in repos" :key="repo.name">
+                <AnswerButton
+                  v-model:value="selectedRepoName"
+                  :error="hasSubmitted && pickedRepoName === repo.name"
+                  :success="hasSubmitted && selectedRepoName === repo.name"
+                  :selected="selectedRepoName === repo.name"
+                  :disabled="hasSubmitted"
+                  :repo="repo"
+                />
+              </li>
+            </ul>
+
+            <div class="mt-6 text-center">
+              <button
+                v-if="gameStatus === 'success'"
+                class="rounded-md px-6 py-2 active:scale-95 bg-green-600 hover:bg-green-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:border-neutral-400 text-white font-medium text-sm border border-green-500 transition-all duration-200 disabled:cursor-not-allowed"
+                @click="handleNext"
+              >
+                <span class="flex items-center gap-2">
+                  <PhArrowRight />
+                  Next request
+                </span>
+              </button>
+
+              <button
+                class="rounded-md px-6 py-2 active:scale-95 bg-green-600 hover:bg-green-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:border-neutral-400 text-white font-medium text-sm border border-green-500 transition-all duration-200 disabled:cursor-not-allowed"
+                v-else-if="gameStatus === 'error'"
+                @click="handleRetry"
+              >
+                <span class="flex items-center gap-2">
+                  <PhGitBranch />
+                  Rebase and Retry
+                </span>
+              </button>
+              <button
+                v-else
+                :disabled="!selectedRepoName"
+                :class="
+                  cn(
+                    'rounded-md px-6 py-2 active:scale-95 bg-green-100 text-green-700 font-medium text-sm border border-green-500 transition-all duration-200',
+                    'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-600',
+                    {
+                      'bg-green-600 hover:bg-green-700 text-white':
+                        selectedRepoName,
+                    }
+                  )
+                "
+                type="submit"
+              >
+                <span class="flex items-center gap-2">
+                  <PhGitMerge />
+                  Merge
+                </span>
+              </button>
+            </div>
+          </form>
+        </template>
       </div>
     </div>
   </NuxtLayout>

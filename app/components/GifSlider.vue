@@ -27,6 +27,7 @@ function refreshGif(): void {
     <Gif :url="currentGif" :key="currentGif" />
 
     <button
+      v-if="items && items.length > 1"
       class="bottom-4 right-4 absolute active:scale-95 hover:scale-110 duration-200 transition-all size-12 bg-white text-neutral-800 flex items-center justify-center rounded-full shadow-[0_0_10px_4px_rgba(0,0,0,0.2)]"
       @click="refreshGif"
     >
