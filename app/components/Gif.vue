@@ -15,9 +15,11 @@ function handleLoaded() {
 
 <template>
   <div class="relative flex items-center justify-center aspect-3/2">
-    <div class="p-8" v-if="isPending">
-      <PhSpinner :size="48" class="animate-spin" />
-    </div>
+    <img
+      class="absolute w-full h-full object-cover"
+      src="https://media1.tenor.com/m/kbs-kzp0DYUAAAAC/static-tv.gif"
+      alt="static tv effect"
+    />
     <img
       @load="handleLoaded"
       :class="[
