@@ -4,7 +4,6 @@ import {
   PhGitBranch,
   PhGitMerge,
   PhSpinner,
-  PhXCircle,
 } from "@phosphor-icons/vue";
 
 const {
@@ -82,13 +81,19 @@ async function handleRetry() {
     <Confetti v-if="isAnswerCorrect" />
     <div class="flex w-full max-w-4xl justify-center">
       <div class="w-full flex flex-col items-center gap-2 justify-center">
-        <div class="w-full sm:max-w-lg 2xl:max-w-3xl">
-          <GifSlider
-            v-if="pendingGifs || pendingRepos"
-            :items="[
-              'https://media1.tenor.com/m/kbs-kzp0DYUAAAAC/static-tv.gif',
-            ]"
-          />
+        <div class="w-full sm:max-w-lg 2xl:max-w-3xl relative">
+          <template v-if="pendingGifs || pendingRepos">
+            <PhSpinner
+              :size="48"
+              weight="bold"
+              class="animate-spin bottom-4 right-4 absolute text-white z-10"
+            />
+            <GifSlider
+              :items="[
+                'https://media1.tenor.com/m/kbs-kzp0DYUAAAAC/static-tv.gif',
+              ]"
+            />
+          </template>
           <GameStatusGif
             v-else-if="hasSubmitted"
             :is-correct="isAnswerCorrect"

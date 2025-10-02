@@ -22,13 +22,6 @@ function handleLoaded() {
       alt="static tv effect"
     />
 
-    <PhSpinner
-      v-if="isPending"
-      :size="48"
-      weight="bold"
-      class="animate-spin z-10 bottom-4 right-4 absolute text-white"
-    />
-
     <img
       @load="handleLoaded"
       :class="[
