@@ -97,14 +97,14 @@ async function handleRetry() {
         </div>
 
         <div
-          class="flex min-h-[180px] gap-2 items-center justify-center"
+          class="flex min-h-[200px] gap-2 items-center justify-center"
           v-if="pendingGifs || pendingRepos"
         >
           <PhSpinner class="animate-spin" />
           <p class="text-neutral-500">Conjuing the weirdest GIFs...</p>
         </div>
 
-        <template v-else>
+        <div class="flex flex-col gap-2 min-h-[200px]" v-else>
           <div class="mt-2 text-center">
             <div
               v-if="gameStatus === 'error'"
@@ -192,7 +192,7 @@ async function handleRetry() {
               </button>
             </div>
           </form>
-        </template>
+        </div>
       </div>
     </div>
   </NuxtLayout>
