@@ -19,12 +19,17 @@ export default function useRepos() {
     "repos",
     () => {
       const perPage = 4;
+
+      const starRanges = shuffle(["stars:>200", "stars:>500", "stars:>1000"]);
+      const selectedStarRange = starRanges[0];
+
       const maxPages = Math.floor(1000 / perPage);
       const page = Math.floor(Math.random() * maxPages) + 1;
+
       const query = fromObjectToQuerystring({
         q: [
-          "stars:>200",
-          "pushed:>2024-01-01",
+          selectedStarRange,
+          "pushed:>2020-01-01",
           "fork:false",
           "archived:false",
         ].join(" "),

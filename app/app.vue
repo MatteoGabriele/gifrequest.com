@@ -122,9 +122,9 @@ async function handleRetry() {
 
         <form
           @submit.prevent="handleSubmit"
-          class="mt-2 flex flex-col items-center justify-center"
+          class="mt-2 w-full sm:w-auto flex flex-col items-center justify-center"
         >
-          <ul class="grid sm:grid-cols-2 gap-2">
+          <ul class="grid w-full sm:grid-cols-2 gap-2">
             <li v-for="repo in repos" :key="repo.name">
               <AnswerButton
                 v-model:value="selectedRepoName"
