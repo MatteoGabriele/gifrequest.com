@@ -4,12 +4,8 @@ import { PhHeart } from "@phosphor-icons/vue";
 
 <template>
   <div class="flex flex-col min-h-screen">
-    <header
-      class="bg-white hidden sm:flex h-10 px-4 items-center justify-between"
-    ></header>
-
     <main
-      class="flex items-center justify-center h-full flex-1 flex-col gap-2 p-6"
+      class="flex items-center justify-center h-full sm:mt-9 flex-1 flex-col gap-2 p-6"
     >
       <header class="mb-6 text-center">
         <h1 class="text-6xl text-neutral-800 font-bold font-display mb-2">
