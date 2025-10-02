@@ -117,6 +117,7 @@ async function handleRetry() {
                 You had a {{ streakCount > 10 ? "amazing" : "good" }} run with
                 {{ streakCount }} consecutive wins!
               </p>
+              <p v-else>Merge aborted. You're better than this!</p>
             </div>
             <p v-else-if="streakCount === 1" class="text-neutral-500">
               ⚡ First merge landed, keep going!
