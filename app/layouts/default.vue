@@ -5,7 +5,7 @@ import { PhHeart } from "@phosphor-icons/vue";
 <template>
   <div class="flex flex-col min-h-screen">
     <header
-      class="bg-white h-10 px-4 flex items-center justify-between"
+      class="bg-white hidden sm:flex h-10 px-4 items-center justify-between"
     ></header>
 
     <main

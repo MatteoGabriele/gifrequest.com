@@ -97,33 +97,31 @@ async function handleRetry() {
         </div>
 
         <div
-          class="flex min-h-[200px] gap-2 items-center justify-center"
+          class="flex min-h-[300px] sm:min-h-[200px] gap-2 items-center justify-center"
           v-if="pendingGifs || pendingRepos"
         >
           <PhSpinner class="animate-spin" />
           <p class="text-neutral-500">Conjuing the weirdest GIFs...</p>
         </div>
 
-        <div class="flex flex-col gap-2 min-h-[200px]" v-else>
-          <div class="mt-2 text-center">
+        <div
+          class="flex w-full sm:w-auto flex-col gap-2 min-h-[300px] sm:min-h-[200px]"
+          v-else
+        >
+          <div class="mt-2 text-center text-sm">
             <div
               v-if="gameStatus === 'error'"
               class="text-red-500 flex items-center flex-col justify-center"
             >
-              <span class="flex items-center gap-2">
-                <PhXCircle weight="fill" size="20" />
-                <p>Merging is blocked.</p>
-              </span>
-              <p v-if="streakCount > 1" class="text-sm">
+              <p v-if="streakCount > 1">
                 You had a {{ streakCount > 10 ? "amazing" : "good" }} run with
                 {{ streakCount }} consecutive wins!
               </p>
             </div>
-            <p v-else-if="streakCount === 1" class="text-neutral-500 text-sm">
-              🌱 First merge landed, your streak starts to grow with the next
-              one
+            <p v-else-if="streakCount === 1" class="text-neutral-500">
+              ⚡ First merge landed, keep going!
             </p>
-            <p class="text-orange-600 text-sm" v-else-if="streakCount > 1">
+            <p class="text-orange-600" v-else-if="streakCount > 1">
               🔥 {{ streakCount }} merges in a row and no conflicts!
             </p>
             <p v-else class="text-neutral-600">
