@@ -81,15 +81,13 @@ async function handleRetry() {
 <template>
   <NuxtLayout>
     <Confetti v-if="isAnswerCorrect" />
-    <div
-      class="flex w-full max-w-4xl min-h-[532px] 2xl:min-h-[702px] justify-center"
-    >
+    <div class="flex w-full max-w-4xl justify-center">
       <div
         class="flex items-center justify-center gap-2 text-neutral-500"
         v-if="pendingGifs || pendingRepos"
       >
         <PhSpinner class="animate-spin" />
-        <span>Fetching lots of dumb GIFs...</span>
+        <span>Conjuing the weirdest GIFs...</span>
       </div>
 
       <div
@@ -101,18 +99,24 @@ async function handleRetry() {
           <GifSlider v-else :items="gifs" />
         </div>
 
-        <div class="mt-2 text-center text-sm">
+        <div class="mt-2 text-center">
           <div
             v-if="gameStatus === 'error'"
-            class="flex items-center gap-2 text-red-500"
+            class="text-red-500 flex items-center flex-col justify-center"
           >
-            <PhXCircle weight="fill" size="20" />
-            <span>Merging is blocked.</span>
+            <span class="flex items-center gap-2">
+              <PhXCircle weight="fill" size="20" />
+              <p>Merging is blocked.</p>
+            </span>
+            <p v-if="streakCount > 1" class="text-sm">
+              You had a {{ streakCount > 10 ? "amazing" : "good" }} run with
+              {{ streakCount }} consecutive wins!
+            </p>
           </div>
-          <p v-else-if="streakCount === 1" class="text-neutral-500">
+          <p v-else-if="streakCount === 1" class="text-neutral-500 text-sm">
             🌱 First merge landed, your streak starts to grow with the next one
           </p>
-          <p class="text-orange-600" v-else-if="streakCount > 1">
+          <p class="text-orange-600 text-sm" v-else-if="streakCount > 1">
             🔥 {{ streakCount }} merges in a row and no conflicts!
           </p>
           <p v-else class="text-neutral-600">
