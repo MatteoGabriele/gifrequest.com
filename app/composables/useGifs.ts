@@ -29,8 +29,6 @@ export function useGifs(searchTerm: MaybeRef<string | undefined>) {
       ar_range: "standard",
     });
 
-    console.log(searchQuery);
-
     const response = await $fetch<TenorResponse>(
       `https://tenor.googleapis.com/v2/search?${searchQuery}`
     );
