@@ -1,4 +1,4 @@
-## GifRequest
+## Gif Request
 
 A pointless web game where random repositories get loaded, a GIF is pulled in, and you’re forced to guess which repo it belongs to.  
 Click “Merge” to feel powerful. Fail, and you’ll hit a merge conflict.  
