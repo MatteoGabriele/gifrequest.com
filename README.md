@@ -1,75 +1,33 @@
-# Nuxt Minimal Starter
+## GifRequest
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A pointless web game where random repositories get loaded, a GIF is pulled in, and you’re forced to guess which repo it belongs to.  
+Click “Merge” to feel powerful. Fail, and you’ll hit a merge conflict.  
+Keep going if you want to build a streak, or stop — it doesn’t matter, nothing matters.  
 
-## Setup
+No cookies.  
+No tracking.  
+No AI.  
+Just waste some good time.  
 
-Make sure to install dependencies:
+---
 
-```bash
-# npm
-npm install
+### Tech Stack
+- Nuxt 4  
+- TailwindCSS  
+- Netlify  
+- Love ❤️  
 
-# pnpm
-pnpm install
+### APIs
+- GitHub API  
+- Tenor API  
 
-# yarn
-yarn install
+---
 
-# bun
-bun install
-```
+This project will be a forever work in progress. If you find bugs, because you will, or have cool ideas, feel free to open an issue.  
 
-## Development Server
+Follow me on [Bluesky](https://bsky.app/profile/matteogabriele.bsky.social)  
 
-Start the development server on `http://localhost:3000`:
+---
 
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+### License
+MIT — because even pointless projects deserve freedom.  
