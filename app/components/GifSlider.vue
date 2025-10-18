@@ -2,36 +2,32 @@
 import { PhArrowClockwise } from "@phosphor-icons/vue";
 
 const props = defineProps<{
-  items?: string[];
+  name: string | undefined;
 }>();
 
-const currentGifIndex = ref<number>(0);
-const currentGif = computed<string | undefined>(() => {
-  return props.items?.[currentGifIndex.value];
-});
-function refreshGif(): void {
-  if (!props.items) {
-    return;
-  }
+const { data: gifs, status } = await useGifs(props.name);
+const { gif, nextGif } = useShuffledGif(gifs);
 
-  if (currentGifIndex.value >= props.items.length - 1) {
-    currentGifIndex.value = 0;
-  } else {
-    currentGifIndex.value++;
-  }
+const isLoaded = ref<boolean>(false);
+function handleLoaded(): void {
+  isLoaded.value = true;
 }
 </script>
 
 <template>
-  <GifContainer>
-    <Gif :url="currentGif" :key="currentGif" />
-
+  <div class="relative w-full">
+    <Gif
+      @loaded="handleLoaded"
+      :key="gif"
+      :has-error="status === 'error'"
+      :src="gif"
+    />
     <button
-      v-if="items && items.length > 1"
+      v-if="isLoaded"
       class="bottom-4 right-4 absolute active:scale-95 hover:scale-110 duration-200 transition-all size-12 bg-white text-neutral-800 flex items-center justify-center rounded-full shadow-[0_0_10px_4px_rgba(0,0,0,0.2)]"
-      @click="refreshGif"
+      @click="nextGif"
     >
       <PhArrowClockwise weight="bold" :size="24" />
     </button>
-  </GifContainer>
+  </div>
 </template>

@@ -31,7 +31,7 @@ const labelClasses = computed(() => {
 });
 
 const iconClasses = computed(() => {
-  return cn("w-4 h-4 transition-colors text-gray-500", {
+  return cn("w-4 h-4 shrink-0 transition-colors text-gray-500", {
     "text-yellow-500": props.selected,
     "text-red-600": props.error,
     "text-green-600": props.success,

@@ -12,51 +12,37 @@ const {
   pending: pendingRepos,
   refresh,
 } = await useRepos();
+
 if (errorRepos.value) {
   throw createError(errorRepos.value);
 }
 
-const pickedRepo = computed<Repo | undefined>(() => {
-  return shuffle(repos.value)[0];
+const repoName = computed<string | undefined>(() => {
+  return shuffle(repos.value)[0]?.name;
 });
-const pickedRepoName = computed<string | undefined>(() => {
-  return pickedRepo.value?.name;
-});
-
-const {
-  data: gifs,
-  pending: pendingGifs,
-  error: errorGif,
-} = useGifs(pickedRepoName);
-
-if (errorGif.value) {
-  throw createError(errorGif.value);
-}
-
-const selectedRepoName = ref<string | null>();
 
 const hasSubmitted = ref<boolean>(false);
 function handleSubmit(): void {
   hasSubmitted.value = true;
 }
 
-type GameStatus = "idle" | "success" | "error";
-const gameStatus = computed<GameStatus>(() => {
-  if (hasSubmitted.value) {
-    return selectedRepoName.value === pickedRepoName.value
-      ? "success"
-      : "error";
-  }
-
-  return "idle";
+const selectedAnswer = ref<string | null>();
+const isCorrect = computed<boolean>(() => {
+  return hasSubmitted.value && selectedAnswer.value === repoName.value;
 });
 
-const isAnswerCorrect = computed<boolean>(() => {
-  return gameStatus.value === "success";
+type Status = "idle" | "success" | "error";
+
+const gameStatus = computed<Status>(() => {
+  if (!hasSubmitted.value) {
+    return "idle";
+  }
+
+  return isCorrect.value ? "success" : "error";
 });
 
 const streakCount = ref<number>(0);
-watch(isAnswerCorrect, (value) => {
+watch(isCorrect, (value) => {
   if (value) {
     streakCount.value++;
   }
@@ -65,139 +51,94 @@ watch(isAnswerCorrect, (value) => {
 async function handleNext() {
   await refresh();
   hasSubmitted.value = false;
-  selectedRepoName.value = null;
+  selectedAnswer.value = null;
 }
 
 async function handleRetry() {
   await refresh();
   streakCount.value = 0;
   hasSubmitted.value = false;
-  selectedRepoName.value = null;
+  selectedAnswer.value = null;
 }
 </script>
 
 <template>
   <NuxtLayout>
-    <Confetti v-if="isAnswerCorrect" />
-    <div class="flex w-full max-w-4xl justify-center">
-      <div class="w-full flex flex-col items-center gap-2 justify-center">
-        <div class="w-full sm:max-w-lg 2xl:max-w-3xl relative">
-          <template v-if="pendingGifs || pendingRepos">
-            <PhSpinner
-              :size="48"
-              weight="bold"
-              class="animate-spin bottom-4 right-4 absolute text-white z-10"
-            />
-            <GifSlider
-              :items="[
-                'https://media1.tenor.com/m/kbs-kzp0DYUAAAAC/static-tv.gif',
-              ]"
-            />
-          </template>
-          <GameStatusGif
-            v-else-if="hasSubmitted"
-            :is-correct="isAnswerCorrect"
-          />
-          <GifSlider v-else :items="gifs" />
-        </div>
+    <Confetti v-if="hasSubmitted && selectedAnswer === repoName" />
 
-        <div
-          class="flex min-h-[300px] sm:min-h-[200px] gap-2 items-center justify-center"
-          v-if="pendingGifs || pendingRepos"
-        >
-          <PhSpinner class="animate-spin" />
-          <p class="text-neutral-500">Conjuing the weirdest GIFs...</p>
-        </div>
-
-        <div
-          class="flex w-full sm:w-auto flex-col gap-2 min-h-[300px] sm:min-h-[200px]"
-          v-else
-        >
-          <div class="mt-2 text-center text-sm">
-            <div
-              v-if="gameStatus === 'error'"
-              class="text-red-500 flex items-center flex-col justify-center"
-            >
-              <p v-if="streakCount > 1">
-                You had a {{ streakCount > 10 ? "amazing" : "good" }} run with
-                {{ streakCount }} consecutive wins!
-              </p>
-              <p v-else>Merge aborted. You're better than this!</p>
-            </div>
-            <p v-else-if="streakCount === 1" class="text-neutral-500">
-              ⚡ First merge landed, keep going!
-            </p>
-            <p class="text-orange-600" v-else-if="streakCount > 1">
-              🔥 {{ streakCount }} merges in a row and no conflicts!
-            </p>
-            <p v-else class="text-neutral-600">
-              Pick the repository that matches the GIF
-            </p>
-          </div>
-
-          <form
-            @submit.prevent="handleSubmit"
-            class="mt-2 w-full sm:w-auto flex flex-col items-center justify-center"
-          >
-            <ul class="grid w-full sm:grid-cols-2 gap-2">
-              <li v-for="repo in repos" :key="repo.name">
-                <AnswerButton
-                  v-model:value="selectedRepoName"
-                  :error="hasSubmitted && pickedRepoName === repo.name"
-                  :success="hasSubmitted && selectedRepoName === repo.name"
-                  :selected="selectedRepoName === repo.name"
-                  :disabled="hasSubmitted"
-                  :repo="repo"
-                />
-              </li>
-            </ul>
-
-            <div class="mt-6 text-center">
-              <button
-                v-if="gameStatus === 'success'"
-                class="rounded-md px-6 py-2 active:scale-95 bg-green-600 hover:bg-green-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:border-neutral-400 text-white font-medium text-sm border border-green-500 transition-all duration-200 disabled:cursor-not-allowed"
-                @click="handleNext"
-              >
-                <span class="flex items-center gap-2">
-                  <PhArrowRight />
-                  Next request
-                </span>
-              </button>
-
-              <button
-                class="rounded-md px-6 py-2 active:scale-95 bg-green-600 hover:bg-green-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:border-neutral-400 text-white font-medium text-sm border border-green-500 transition-all duration-200 disabled:cursor-not-allowed"
-                v-else-if="gameStatus === 'error'"
-                @click="handleRetry"
-              >
-                <span class="flex items-center gap-2">
-                  <PhGitBranch />
-                  Rebase and Retry
-                </span>
-              </button>
-              <button
-                v-else
-                :disabled="!selectedRepoName"
-                :class="
-                  cn(
-                    'rounded-md px-6 py-2 active:scale-95 bg-green-100 text-green-700 font-medium text-sm border border-green-500 transition-all duration-200',
-                    'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-600',
-                    {
-                      'bg-green-600 hover:bg-green-700 text-white':
-                        selectedRepoName,
-                    }
-                  )
-                "
-                type="submit"
-              >
-                <span class="flex items-center gap-2">
-                  <PhGitMerge />
-                  Merge
-                </span>
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
+    <div class="w-full sm:max-w-lg 2xl:max-w-3xl">
+      <GameStatusGif v-if="hasSubmitted" :is-correct="isCorrect" />
+      <GifSlider v-else :name="repoName" />
     </div>
+
+    <StatusMessage
+      class="mt-2"
+      :show-error="gameStatus === 'error'"
+      :counter="streakCount"
+    />
+
+    <form
+      class="mt-2 w-full sm:w-auto flex flex-col items-center justify-center"
+      @submit.prevent="handleSubmit"
+    >
+      <ul class="grid w-full sm:grid-cols-2 gap-2 max-w-4xl">
+        <li v-for="repo in repos" :key="repo.name">
+          <AnswerButton
+            type="button"
+            v-model:value="selectedAnswer"
+            :repo="repo"
+            :error="hasSubmitted && repoName === repo.name"
+            :success="hasSubmitted && selectedAnswer === repo.name"
+            :selected="selectedAnswer === repo.name"
+            :disabled="hasSubmitted"
+          />
+        </li>
+      </ul>
+
+      <div class="mt-6 text-center">
+        <button
+          v-if="hasSubmitted && isCorrect"
+          @click="handleNext"
+          class="rounded-md px-6 py-2 active:scale-95 bg-green-600 hover:bg-green-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:border-neutral-400 text-white font-medium text-sm border border-green-500 transition-all duration-200 disabled:cursor-not-allowed"
+        >
+          <span class="flex items-center gap-2">
+            <PhSpinner class="animate-spin" v-if="pendingRepos" />
+            <PhArrowRight v-else />
+            Next request
+          </span>
+        </button>
+
+        <button
+          class="rounded-md px-6 py-2 active:scale-95 bg-green-600 hover:bg-green-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:border-neutral-400 text-white font-medium text-sm border border-green-500 transition-all duration-200 disabled:cursor-not-allowed"
+          v-else-if="hasSubmitted && !isCorrect"
+          @click="handleRetry"
+        >
+          <span class="flex items-center gap-2">
+            <PhSpinner class="animate-spin" v-if="pendingRepos" />
+            <PhGitBranch v-else />
+            Rebase and Retry
+          </span>
+        </button>
+        <button
+          v-else
+          type="submit"
+          :disabled="!selectedAnswer"
+          :class="
+            cn(
+              'rounded-md px-6 py-2 active:scale-95 bg-green-100 text-green-700 font-medium text-sm border border-green-500 transition-all duration-200',
+              'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-600',
+              {
+                'bg-green-600 hover:bg-green-700 text-white': selectedAnswer,
+              }
+            )
+          "
+        >
+          <span class="flex items-center gap-2">
+            <PhGitMerge />
+            Merge
+          </span>
+        </button>
+      </div>
+    </form>
   </NuxtLayout>
 </template>
