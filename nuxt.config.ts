@@ -8,7 +8,7 @@ export default defineNuxtConfig({
   css: ["~/assets/css/main.css"],
 
   image: {
-    provider: undefined,
+    provider: "none",
   },
 
   runtimeConfig: {
