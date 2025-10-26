@@ -1,203 +1,86 @@
 <script setup lang="ts">
-import {
-  PhArrowRight,
-  PhGitBranch,
-  PhGitMerge,
-  PhSpinner,
-} from "@phosphor-icons/vue";
+import { PhArrowRight, PhGitBranch, PhGitMerge } from "@phosphor-icons/vue";
+import { useGameStore } from "~/store/game";
 
-const {
-  data: repos,
-  error: errorRepos,
-  pending: pendingRepos,
-  refresh,
-} = await useRepos();
-if (errorRepos.value) {
-  throw createError(errorRepos.value);
+const { data, error, pending, refresh } = await useRepos();
+
+const gameStore = useGameStore();
+
+if (error.value) {
+  throw createError(error.value);
 }
 
-const pickedRepo = computed<Repo | undefined>(() => {
-  return shuffle(repos.value)[0];
-});
-const pickedRepoName = computed<string | undefined>(() => {
-  return pickedRepo.value?.name;
-});
+gameStore.repos = data.value;
 
-const {
-  data: gifs,
-  pending: pendingGifs,
-  error: errorGif,
-} = useGifs(pickedRepoName);
-
-if (errorGif.value) {
-  throw createError(errorGif.value);
-}
-
-const selectedRepoName = ref<string | null>();
-
-const hasSubmitted = ref<boolean>(false);
-function handleSubmit(): void {
-  hasSubmitted.value = true;
-}
-
-type GameStatus = "idle" | "success" | "error";
-const gameStatus = computed<GameStatus>(() => {
-  if (hasSubmitted.value) {
-    return selectedRepoName.value === pickedRepoName.value
-      ? "success"
-      : "error";
-  }
-
-  return "idle";
-});
-
-const isAnswerCorrect = computed<boolean>(() => {
-  return gameStatus.value === "success";
-});
-
-const streakCount = ref<number>(0);
-watch(isAnswerCorrect, (value) => {
-  if (value) {
-    streakCount.value++;
-  }
-});
-
-async function handleNext() {
+const handleNext = async () => {
+  gameStore.reset({ keepStreak: true });
   await refresh();
-  hasSubmitted.value = false;
-  selectedRepoName.value = null;
-}
+  gameStore.repos = data.value;
+};
 
-async function handleRetry() {
+const handleRetry = async () => {
+  gameStore.reset();
   await refresh();
-  streakCount.value = 0;
-  hasSubmitted.value = false;
-  selectedRepoName.value = null;
-}
+  gameStore.repos = data.value;
+};
 </script>
 
 <template>
   <NuxtLayout>
-    <Confetti v-if="isAnswerCorrect" />
-    <div class="flex w-full max-w-4xl justify-center">
-      <div class="w-full flex flex-col items-center gap-2 justify-center">
-        <div class="w-full sm:max-w-lg 2xl:max-w-3xl relative">
-          <template v-if="pendingGifs || pendingRepos">
-            <PhSpinner
-              :size="48"
-              weight="bold"
-              class="animate-spin bottom-4 right-4 absolute text-white z-10"
-            />
-            <GifSlider
-              :items="[
-                'https://media1.tenor.com/m/kbs-kzp0DYUAAAAC/static-tv.gif',
-              ]"
-            />
-          </template>
-          <GameStatusGif
-            v-else-if="hasSubmitted"
-            :is-correct="isAnswerCorrect"
-          />
-          <GifSlider v-else :items="gifs" />
-        </div>
+    <Confetti v-if="gameStore.isSelectedRepositoryCorrect" />
 
-        <div
-          class="flex min-h-[300px] sm:min-h-[200px] gap-2 items-center justify-center"
-          v-if="pendingGifs || pendingRepos"
-        >
-          <PhSpinner class="animate-spin" />
-          <p class="text-neutral-500">Conjuing the weirdest GIFs...</p>
-        </div>
-
-        <div
-          class="flex w-full sm:w-auto flex-col gap-2 min-h-[300px] sm:min-h-[200px]"
-          v-else
-        >
-          <div class="mt-2 text-center text-sm">
-            <div
-              v-if="gameStatus === 'error'"
-              class="text-red-500 flex items-center flex-col justify-center"
-            >
-              <p v-if="streakCount > 1">
-                You had a {{ streakCount > 10 ? "amazing" : "good" }} run with
-                {{ streakCount }} consecutive wins!
-              </p>
-              <p v-else>Merge aborted. You're better than this!</p>
-            </div>
-            <p v-else-if="streakCount === 1" class="text-neutral-500">
-              ⚡ First merge landed, keep going!
-            </p>
-            <p class="text-orange-600" v-else-if="streakCount > 1">
-              🔥 {{ streakCount }} merges in a row and no conflicts!
-            </p>
-            <p v-else class="text-neutral-600">
-              Pick the repository that matches the GIF
-            </p>
-          </div>
-
-          <form
-            @submit.prevent="handleSubmit"
-            class="mt-2 w-full sm:w-auto flex flex-col items-center justify-center"
-          >
-            <ul class="grid w-full sm:grid-cols-2 gap-2">
-              <li v-for="repo in repos" :key="repo.name">
-                <AnswerButton
-                  v-model:value="selectedRepoName"
-                  :error="hasSubmitted && pickedRepoName === repo.name"
-                  :success="hasSubmitted && selectedRepoName === repo.name"
-                  :selected="selectedRepoName === repo.name"
-                  :disabled="hasSubmitted"
-                  :repo="repo"
-                />
-              </li>
-            </ul>
-
-            <div class="mt-6 text-center">
-              <button
-                v-if="gameStatus === 'success'"
-                class="rounded-md px-6 py-2 active:scale-95 bg-green-600 hover:bg-green-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:border-neutral-400 text-white font-medium text-sm border border-green-500 transition-all duration-200 disabled:cursor-not-allowed"
-                @click="handleNext"
-              >
-                <span class="flex items-center gap-2">
-                  <PhArrowRight />
-                  Next request
-                </span>
-              </button>
-
-              <button
-                class="rounded-md px-6 py-2 active:scale-95 bg-green-600 hover:bg-green-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:border-neutral-400 text-white font-medium text-sm border border-green-500 transition-all duration-200 disabled:cursor-not-allowed"
-                v-else-if="gameStatus === 'error'"
-                @click="handleRetry"
-              >
-                <span class="flex items-center gap-2">
-                  <PhGitBranch />
-                  Rebase and Retry
-                </span>
-              </button>
-              <button
-                v-else
-                :disabled="!selectedRepoName"
-                :class="
-                  cn(
-                    'rounded-md px-6 py-2 active:scale-95 bg-green-100 text-green-700 font-medium text-sm border border-green-500 transition-all duration-200',
-                    'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-600',
-                    {
-                      'bg-green-600 hover:bg-green-700 text-white':
-                        selectedRepoName,
-                    }
-                  )
-                "
-                type="submit"
-              >
-                <span class="flex items-center gap-2">
-                  <PhGitMerge />
-                  Merge
-                </span>
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
+    <div class="w-full sm:max-w-lg 2xl:max-w-3xl aspect-video">
+      <GameStatusGif v-if="gameStore.hasSubmitted" />
+      <GifSlider v-else :name="gameStore.correctRepositoryName" />
     </div>
+
+    <StatusMessage class="mt-2" />
+
+    <form
+      class="mt-2 w-full sm:w-auto flex flex-col items-center justify-center"
+      @submit.prevent="gameStore.submit"
+    >
+      <ul class="grid w-full sm:grid-cols-2 gap-2 max-w-4xl">
+        <li v-for="repo in data" :key="repo.name">
+          <Repository
+            v-model:value="gameStore.selectedRepositoryName"
+            :repo="repo"
+          />
+        </li>
+      </ul>
+
+      <div class="mt-6 text-center">
+        <BaseButton
+          v-if="gameStore.isSelectedRepositoryCorrect"
+          @click="handleNext"
+          :loading="pending"
+        >
+          <template #icon>
+            <PhArrowRight />
+          </template>
+          Next request
+        </BaseButton>
+
+        <BaseButton
+          v-else-if="
+            gameStore.hasSubmitted && !gameStore.isSelectedRepositoryCorrect
+          "
+          @click="handleRetry"
+          :loading="pending"
+        >
+          <template #icon>
+            <PhGitBranch />
+          </template>
+          Rebase and Retry
+        </BaseButton>
+
+        <BaseButton v-else type="submit">
+          <template #icon>
+            <PhGitMerge />
+          </template>
+          Merge
+        </BaseButton>
+      </div>
+    </form>
   </NuxtLayout>
 </template>

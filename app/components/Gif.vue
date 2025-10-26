@@ -1,36 +1,34 @@
 <script setup lang="ts">
-import { PhSpinner } from "@phosphor-icons/vue";
-
 defineProps<{
-  url: string | undefined;
+  src: string | undefined;
+  hasError?: boolean;
 }>();
 
-const isPending = ref<boolean>(true);
+const emit = defineEmits<{
+  (e: "loaded"): void;
+}>();
+
 function handleLoaded() {
-  nextTick(() => {
-    isPending.value = false;
-  });
+  emit("loaded");
 }
 </script>
 
 <template>
-  <div class="relative flex items-center justify-center aspect-3/2">
-    <img
-      v-if="isPending"
-      class="absolute w-full h-full object-cover"
-      src="https://media1.tenor.com/m/kbs-kzp0DYUAAAAC/static-tv.gif"
-      alt="static tv effect"
+  <div
+    class="relative shadow-sm w-full aspect-video overflow-hidden rounded-4xl"
+  >
+    <NuxtImg
+      v-if="hasError"
+      class="absolute w-full h-full object-cover object-center"
+      src="https://media1.tenor.com/m/51xvC35-fDEAAAAd/manhunt.gif"
     />
 
-    <img
+    <NuxtImg
+      v-else
       @load="handleLoaded"
-      :class="[
-        'absolute w-full h-full object-cover',
-        {
-          'opacity-0': isPending,
-        },
-      ]"
-      :src="url"
+      class="absolute w-full h-full object-cover object-center"
+      placeholder="https://media1.tenor.com/m/kbs-kzp0DYUAAAAC/static-tv.gif"
+      :src="src"
     />
   </div>
 </template>

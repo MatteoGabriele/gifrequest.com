@@ -11,11 +11,13 @@ type TenorResponse = {
   results: TenorResult[];
 };
 
-export function useGifs(searchTerm: MaybeRef<string | undefined>) {
+export type Gif = string;
+
+export function useGifs(searchTerm: MaybeRef<string | null | undefined>) {
   const { tenorKey } = useRuntimeConfig().public;
   const searchTermRef = ref(searchTerm);
 
-  async function loadGifs(): Promise<string[] | undefined> {
+  async function loadGifs(): Promise<Gif[] | undefined> {
     if (!searchTermRef.value) {
       return;
     }

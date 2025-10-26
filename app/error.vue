@@ -1,12 +1,29 @@
 <script setup lang="ts">
 import type { NuxtError } from "#app";
-import { PhGitBranch } from "@phosphor-icons/vue";
+import { PhGitBranch, PhHourglass } from "@phosphor-icons/vue";
 
 const props = defineProps({
   error: Object as () => NuxtError,
 });
 
 const handleError = () => clearError({ redirect: "/" });
+
+const countdown = ref<number>(10);
+let interval: number | undefined;
+
+onMounted(() => {
+  interval = setInterval(() => {
+    if (countdown.value <= 0) {
+      clearInterval(interval);
+      return;
+    }
+    countdown.value = countdown.value - 1;
+  }, 1000);
+});
+
+onUnmounted(() => {
+  clearInterval(interval);
+});
 </script>
 
 <template>
@@ -17,23 +34,29 @@ const handleError = () => clearError({ redirect: "/" });
       <div class="w-full">
         <GifContainer>
           <Gif
-            url="https://media1.tenor.com/m/0iaAOtOyrY4AAAAC/you-need-to-relax-will-ferrell.gif"
+            src="https://media1.tenor.com/m/0iaAOtOyrY4AAAAC/you-need-to-relax-will-ferrell.gif"
           />
         </GifContainer>
       </div>
 
-      <p class="text-center text-neutral-600 text-balance">
-        You are most likely a developer, I don't need to tell you that shit
-        happens.
-      </p>
+      <div class="text-center text-neutral-600 text-sm text-balance">
+        <p>Hey stop smashing that button so fast!</p>
+        <p>I'm using free services. Calm down!</p>
+      </div>
 
       <button
         @click="handleError"
         class="rounded-md px-6 py-2 active:scale-95 bg-green-600 hover:bg-green-700 text-white font-medium text-sm border border-green-500 transition-all duration-200"
       >
         <span class="flex items-center gap-2">
-          <PhGitBranch />
-          Open a new gif request
+          <template v-if="countdown">
+            <PhHourglass class="animate-pulse" />
+            Retry in {{ countdown }} second{{ countdown === 1 ? "" : "s" }}
+          </template>
+          <template v-else>
+            <PhGitBranch />
+            Open a new gif request
+          </template>
         </span>
       </button>
     </div>
