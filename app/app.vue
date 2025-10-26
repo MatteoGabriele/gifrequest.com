@@ -38,16 +38,16 @@ watch(isCorrect, (value) => {
 });
 
 async function handleNext() {
-  await refresh();
   hasSubmitted.value = false;
   selectedAnswer.value = null;
+  await refresh();
 }
 
 async function handleRetry() {
-  await refresh();
   streakCount.value = 0;
   hasSubmitted.value = false;
   selectedAnswer.value = null;
+  await refresh();
 }
 </script>
 
@@ -73,7 +73,6 @@ async function handleRetry() {
       <ul class="grid w-full sm:grid-cols-2 gap-2 max-w-4xl">
         <li v-for="repo in repos" :key="repo.name">
           <Repository
-            type="button"
             v-model:value="selectedAnswer"
             :repo="repo"
             :error="hasSubmitted && repoName === repo.name"
