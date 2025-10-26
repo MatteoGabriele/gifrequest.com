@@ -13,7 +13,7 @@ type TenorResponse = {
 
 export type Gif = string;
 
-export function useGifs(searchTerm: MaybeRef<string | undefined>) {
+export function useGifs(searchTerm: MaybeRef<string | null | undefined>) {
   const { tenorKey } = useRuntimeConfig().public;
   const searchTermRef = ref(searchTerm);
 

@@ -1,15 +1,36 @@
 <script setup lang="ts">
 import { PhStar } from "@phosphor-icons/vue";
+import { useGameStore } from "~/store/game";
 
 const props = defineProps<{
   repo: Repo;
-  success?: boolean;
-  error?: boolean;
-  selected?: boolean;
-  disabled?: boolean;
 }>();
 
 const value = defineModel<string | null>("value");
+
+const gameStore = useGameStore();
+
+const isSelected = computed<boolean>(() => {
+  return gameStore.selectedRepositoryName === props.repo.name;
+});
+
+const hasError = computed<boolean>(() => {
+  return (
+    gameStore.hasSubmitted &&
+    gameStore.correctRepositoryName === props.repo.name
+  );
+});
+
+const isCorrect = computed<boolean>(() => {
+  return (
+    gameStore.hasSubmitted &&
+    gameStore.selectedRepositoryName === props.repo.name
+  );
+});
+
+const isDisabled = computed<boolean>(() => {
+  return gameStore.hasSubmitted;
+});
 
 const labelClasses = computed(() => {
   return cn(
@@ -20,28 +41,28 @@ const labelClasses = computed(() => {
     "focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2",
     {
       "bg-red-50 border-red-300 text-red-800 hover:border-red-400 hover:bg-red-50":
-        props.error,
+        hasError.value,
       "bg-blue-50 border-blue-300 text-blue-800 hover:border-blue-400 hover:bg-blue-50":
-        props.selected,
+        isSelected.value,
       "bg-green-50 border-green-300 text-green-800 hover:border-green-400 hover:bg-green-50":
-        props.success,
-      "cursor-not-allowed": props.disabled,
+        isCorrect.value,
+      "cursor-not-allowed": isDisabled.value,
     }
   );
 });
 
 const iconClasses = computed(() => {
   return cn("w-4 h-4 shrink-0 transition-colors text-gray-500", {
-    "text-yellow-500": props.selected,
-    "text-red-600": props.error,
-    "text-green-600": props.success,
+    "text-yellow-500": isSelected.value,
+    "text-red-600": hasError.value,
+    "text-green-600": isCorrect.value,
   });
 });
 </script>
 
 <template>
   <label :for="repo.name" :class="labelClasses">
-    <PhStar :weight="selected ? 'fill' : 'regular'" :class="iconClasses" />
+    <PhStar :weight="isSelected ? 'fill' : 'regular'" :class="iconClasses" />
 
     {{ repo.name }}
     <span class="bg-neutral-200 rounded-full px-2 text-xs">
@@ -50,7 +71,7 @@ const iconClasses = computed(() => {
 
     <input
       :id="repo.name"
-      :disabled
+      :disabled="isDisabled"
       :value="repo.name"
       type="radio"
       :name="repo.name"

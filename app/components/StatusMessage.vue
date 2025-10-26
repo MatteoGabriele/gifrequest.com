@@ -1,8 +1,11 @@
 <script setup lang="ts">
-defineProps<{
-  showError?: boolean;
-  counter: number;
-}>();
+import { useGameStore } from "~/store/game";
+
+const gameStore = useGameStore();
+const counter = computed<number>(() => gameStore.streakCounter);
+const showError = computed<boolean>(() => {
+  return gameStore.hasSubmitted && !gameStore.isSelectedRepositoryCorrect;
+});
 </script>
 
 <template>

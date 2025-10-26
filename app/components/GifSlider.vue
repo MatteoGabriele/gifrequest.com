@@ -2,10 +2,11 @@
 import { PhArrowClockwise } from "@phosphor-icons/vue";
 
 const props = defineProps<{
-  name: string | undefined;
+  name: string | null | undefined;
 }>();
 
-const { data: gifs, status } = await useGifs(props.name);
+const name = computed(() => props.name);
+const { data: gifs, status } = await useGifs(name);
 const { gif, nextGif } = useShuffledGif(gifs);
 
 const isLoaded = ref<boolean>(false);

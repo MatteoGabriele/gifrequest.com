@@ -11,7 +11,6 @@ export type GithubResponse = {
 export type Repo = {
   name: string;
   stars: number;
-  url: string;
 };
 
 export default function useRepos() {
@@ -45,11 +44,10 @@ export default function useRepos() {
     },
     {
       default: () => [],
-      transform: (data) => {
-        return shuffle(data.items).map((r) => ({
+      transform: (data): Repo[] => {
+        return data.items.map((r) => ({
           name: r.name,
           stars: r.stargazers_count,
-          url: r.html_url,
         }));
       },
     }

@@ -47,5 +47,5 @@ export default defineNuxtConfig({
     plugins: [tailwindcss()],
   },
 
-  modules: ["@nuxt/fonts", "@nuxt/image"],
+  modules: ["@nuxt/fonts", "@nuxt/image", "@pinia/nuxt"],
 });

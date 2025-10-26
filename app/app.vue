@@ -1,93 +1,59 @@
 <script setup lang="ts">
 import { PhArrowRight, PhGitBranch, PhGitMerge } from "@phosphor-icons/vue";
+import { useGameStore } from "~/store/game";
 
-const {
-  data: repos,
-  error: errorRepos,
-  pending: pendingRepos,
-  refresh,
-} = await useRepos();
+const { data, error, pending, refresh } = await useRepos();
 
-if (errorRepos.value) {
-  throw createError(errorRepos.value);
+const gameStore = useGameStore();
+
+if (error.value) {
+  throw createError(error.value);
 }
 
-const repoName = computed<string | undefined>(() => {
-  return shuffle(repos.value)[0]?.name;
-});
+gameStore.repos = data.value;
 
-const hasSubmitted = ref<boolean>(false);
-function handleSubmit(): void {
-  if (!selectedAnswer.value) {
-    return;
-  }
-
-  hasSubmitted.value = true;
-}
-
-const selectedAnswer = ref<string | null>();
-const isCorrect = computed<boolean>(() => {
-  return hasSubmitted.value && selectedAnswer.value === repoName.value;
-});
-
-const streakCount = ref<number>(0);
-watch(isCorrect, (value) => {
-  if (value) {
-    streakCount.value++;
-  }
-});
-
-async function handleNext() {
-  hasSubmitted.value = false;
-  selectedAnswer.value = null;
+const handleNext = async () => {
+  gameStore.reset({ keepStreak: true });
   await refresh();
-}
+  gameStore.repos = data.value;
+};
 
-async function handleRetry() {
-  streakCount.value = 0;
-  hasSubmitted.value = false;
-  selectedAnswer.value = null;
+const handleRetry = async () => {
+  gameStore.reset();
   await refresh();
-}
+  gameStore.repos = data.value;
+};
 </script>
 
 <template>
   <NuxtLayout>
-    <Confetti v-if="hasSubmitted && selectedAnswer === repoName" />
+    <Confetti v-if="gameStore.isSelectedRepositoryCorrect" />
 
     <div class="w-full sm:max-w-lg 2xl:max-w-3xl aspect-video">
-      <GameStatusGif v-if="hasSubmitted" :is-correct="isCorrect" />
-      <GifSlider v-else :name="repoName" />
+      <GameStatusGif v-if="gameStore.hasSubmitted" />
+      <GifSlider v-else :name="gameStore.correctRepositoryName" />
     </div>
 
-    <StatusMessage
-      class="mt-2"
-      :show-error="hasSubmitted && !isCorrect"
-      :counter="streakCount"
-    />
+    <StatusMessage class="mt-2" />
 
     <form
       class="mt-2 w-full sm:w-auto flex flex-col items-center justify-center"
-      @submit.prevent="handleSubmit"
+      @submit.prevent="gameStore.submit"
     >
       <ul class="grid w-full sm:grid-cols-2 gap-2 max-w-4xl">
-        <li v-for="repo in repos" :key="repo.name">
+        <li v-for="repo in data" :key="repo.name">
           <Repository
-            v-model:value="selectedAnswer"
+            v-model:value="gameStore.selectedRepositoryName"
             :repo="repo"
-            :error="hasSubmitted && repoName === repo.name"
-            :success="hasSubmitted && selectedAnswer === repo.name"
-            :selected="selectedAnswer === repo.name"
-            :disabled="hasSubmitted"
           />
         </li>
       </ul>
 
       <div class="mt-6 text-center">
         <BaseButton
-          v-if="hasSubmitted && isCorrect"
+          v-if="gameStore.isSelectedRepositoryCorrect"
           @click="handleNext"
-          :loading="pendingRepos"
+          :loading="pending"
         >
           <template #icon>
             <PhArrowRight />
@@ -96,9 +62,11 @@ async function handleRetry() {
         </BaseButton>
 
         <BaseButton
-          v-else-if="hasSubmitted && !isCorrect"
+          v-else-if="
+            gameStore.hasSubmitted && !gameStore.isSelectedRepositoryCorrect
+          "
           @click="handleRetry"
-          :loading="pendingRepos"
+          :loading="pending"
         >
           <template #icon>
             <PhGitBranch />

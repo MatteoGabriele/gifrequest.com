@@ -1,9 +1,9 @@
 <script setup lang="ts">
-const props = defineProps<{
-  isCorrect: boolean;
-}>();
+import { useGameStore } from "~/store/game";
 
-const corrects = [
+const gameStore = useGameStore();
+
+const corrects: string[] = [
   "https://media1.tenor.com/m/0Sh7u1lRsyEAAAAC/wedding-crasher-hro.gif",
   "https://media1.tenor.com/m/Cc1qotSwPnIAAAAC/yee.gif",
   "https://media1.tenor.com/m/7aYhdZouU-QAAAAC/celebrate-will-ferrell.gif",
@@ -15,7 +15,7 @@ const corrects = [
   "https://media1.tenor.com/m/I7eDUnVD7FYAAAAC/money-rain-erlich-bachman.gif",
 ];
 
-const errors = [
+const errors: string[] = [
   "https://media1.tenor.com/m/n5UTrQqOwp0AAAAC/leonardo-dicaprio-absolutely-fucking-not.gif",
   "https://media1.tenor.com/m/LFez5CkZp44AAAAC/groundhog-day-bill-murray.gif",
   "https://media1.tenor.com/m/DKj_JQhjAo8AAAAd/wrong-incorrect.gif",
@@ -25,15 +25,18 @@ const errors = [
   "https://media1.tenor.com/m/d53WvnYgeMkAAAAd/absolutely-not.gif",
 ];
 
-const src = computed<string | undefined>(() => {
-  if (props.isCorrect) {
-    return shuffle(corrects)[0];
-  } else {
-    return shuffle(errors)[0];
-  }
-});
+const image = ref<string | undefined>();
+
+watch(
+  () => gameStore.isSelectedRepositoryCorrect,
+  (value) => {
+    const images: string[] = value ? corrects : errors;
+    image.value = shuffle(images)[0];
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
-  <Gif :key="src" :src="src" />
+  <Gif :key="image" :src="image" />
 </template>
