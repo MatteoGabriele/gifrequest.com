@@ -9,6 +9,12 @@ export default defineNuxtConfig({
 
   image: {
     provider: "ipx",
+    domains: [
+      "media1.tenor.com",
+      "media2.tenor.com",
+      "media3.tenor.com",
+      "media4.tenor.com",
+    ],
   },
 
   runtimeConfig: {
