@@ -15,6 +15,9 @@ export default defineNuxtConfig({
       "media3.tenor.com",
       "media4.tenor.com",
     ],
+    netlify: {
+      baseURL: "",
+    },
   },
 
   runtimeConfig: {
