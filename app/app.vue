@@ -66,7 +66,7 @@ async function handleRetry() {
   <NuxtLayout>
     <Confetti v-if="hasSubmitted && selectedAnswer === repoName" />
 
-    <div class="w-full sm:max-w-lg 2xl:max-w-3xl">
+    <div class="w-full sm:max-w-lg 2xl:max-w-3xl aspect-video">
       <GameStatusGif v-if="hasSubmitted" :is-correct="isCorrect" />
       <GifSlider v-else :name="repoName" />
     </div>

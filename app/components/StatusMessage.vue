@@ -20,7 +20,7 @@ defineProps<{
     <p v-else-if="counter === 1" class="text-neutral-500">
       ⚡ First merge landed, keep going!
     </p>
-    <p class="text-orange-600" v-else-if="counter > 1">
+    <p class="text-green-600" v-else-if="counter > 1">
       🔥 {{ counter }} merges in a row and no conflicts!
     </p>
     <p v-else class="text-neutral-600">
