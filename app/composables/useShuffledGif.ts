@@ -1,11 +1,11 @@
-type UseShaffledGifReturn = {
+type UseShuffledGifReturn = {
   gif: ComputedRef<Gif | undefined>;
   nextGif: () => void;
 };
 
 export default function useShuffledGif(
   gifs: MaybeRef<Gif[] | undefined>
-): UseShaffledGifReturn {
+): UseShuffledGifReturn {
   const shuffledGifs = computed<Gif[]>(() => {
     const gifsRaw = unref(gifs);
 
