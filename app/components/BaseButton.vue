@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { PhSpinner } from "@phosphor-icons/vue";
 
-interface ActionButtonProps {
+defineProps<{
   loading?: boolean;
-}
-
-defineProps<ActionButtonProps>();
+}>();
 </script>
 
 <template>

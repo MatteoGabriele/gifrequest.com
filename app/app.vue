@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import {
-  PhArrowRight,
-  PhGitBranch,
-  PhGitMerge,
-  PhSpinner,
-} from "@phosphor-icons/vue";
+import { PhArrowRight, PhGitBranch, PhGitMerge } from "@phosphor-icons/vue";
 
 const {
   data: repos,
@@ -77,7 +72,7 @@ async function handleRetry() {
     >
       <ul class="grid w-full sm:grid-cols-2 gap-2 max-w-4xl">
         <li v-for="repo in repos" :key="repo.name">
-          <AnswerButton
+          <Repository
             type="button"
             v-model:value="selectedAnswer"
             :repo="repo"
@@ -90,7 +85,7 @@ async function handleRetry() {
       </ul>
 
       <div class="mt-6 text-center">
-        <ActionButton
+        <BaseButton
           v-if="hasSubmitted && isCorrect"
           @click="handleNext"
           :loading="pendingRepos"
@@ -99,9 +94,9 @@ async function handleRetry() {
             <PhArrowRight />
           </template>
           Next request
-        </ActionButton>
+        </BaseButton>
 
-        <ActionButton
+        <BaseButton
           v-else-if="hasSubmitted && !isCorrect"
           @click="handleRetry"
           :loading="pendingRepos"
@@ -110,14 +105,14 @@ async function handleRetry() {
             <PhGitBranch />
           </template>
           Rebase and Retry
-        </ActionButton>
+        </BaseButton>
 
-        <ActionButton v-else type="submit">
+        <BaseButton v-else type="submit">
           <template #icon>
             <PhGitMerge />
           </template>
           Merge
-        </ActionButton>
+        </BaseButton>
       </div>
     </form>
   </NuxtLayout>
