@@ -23,22 +23,16 @@ const repoName = computed<string | undefined>(() => {
 
 const hasSubmitted = ref<boolean>(false);
 function handleSubmit(): void {
+  if (!selectedAnswer.value) {
+    return;
+  }
+
   hasSubmitted.value = true;
 }
 
 const selectedAnswer = ref<string | null>();
 const isCorrect = computed<boolean>(() => {
   return hasSubmitted.value && selectedAnswer.value === repoName.value;
-});
-
-type Status = "idle" | "success" | "error";
-
-const gameStatus = computed<Status>(() => {
-  if (!hasSubmitted.value) {
-    return "idle";
-  }
-
-  return isCorrect.value ? "success" : "error";
 });
 
 const streakCount = ref<number>(0);
@@ -73,7 +67,7 @@ async function handleRetry() {
 
     <StatusMessage
       class="mt-2"
-      :show-error="gameStatus === 'error'"
+      :show-error="hasSubmitted && !isCorrect"
       :counter="streakCount"
     />
 
@@ -96,48 +90,34 @@ async function handleRetry() {
       </ul>
 
       <div class="mt-6 text-center">
-        <button
+        <ActionButton
           v-if="hasSubmitted && isCorrect"
           @click="handleNext"
-          class="rounded-md px-6 py-2 active:scale-95 bg-green-600 hover:bg-green-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:border-neutral-400 text-white font-medium text-sm border border-green-500 transition-all duration-200 disabled:cursor-not-allowed"
+          :loading="pendingRepos"
         >
-          <span class="flex items-center gap-2">
-            <PhSpinner class="animate-spin" v-if="pendingRepos" />
-            <PhArrowRight v-else />
-            Next request
-          </span>
-        </button>
+          <template #icon>
+            <PhArrowRight />
+          </template>
+          Next request
+        </ActionButton>
 
-        <button
-          class="rounded-md px-6 py-2 active:scale-95 bg-green-600 hover:bg-green-700 disabled:bg-neutral-300 disabled:text-neutral-500 disabled:border-neutral-400 text-white font-medium text-sm border border-green-500 transition-all duration-200 disabled:cursor-not-allowed"
+        <ActionButton
           v-else-if="hasSubmitted && !isCorrect"
           @click="handleRetry"
+          :loading="pendingRepos"
         >
-          <span class="flex items-center gap-2">
-            <PhSpinner class="animate-spin" v-if="pendingRepos" />
-            <PhGitBranch v-else />
-            Rebase and Retry
-          </span>
-        </button>
-        <button
-          v-else
-          type="submit"
-          :disabled="!selectedAnswer"
-          :class="
-            cn(
-              'rounded-md px-6 py-2 active:scale-95 bg-green-100 text-green-700 font-medium text-sm border border-green-500 transition-all duration-200',
-              'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-600',
-              {
-                'bg-green-600 hover:bg-green-700 text-white': selectedAnswer,
-              }
-            )
-          "
-        >
-          <span class="flex items-center gap-2">
+          <template #icon>
+            <PhGitBranch />
+          </template>
+          Rebase and Retry
+        </ActionButton>
+
+        <ActionButton v-else type="submit">
+          <template #icon>
             <PhGitMerge />
-            Merge
-          </span>
-        </button>
+          </template>
+          Merge
+        </ActionButton>
       </div>
     </form>
   </NuxtLayout>
