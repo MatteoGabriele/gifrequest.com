@@ -32,11 +32,9 @@ onUnmounted(() => {
       class="w-full max-w-lg gap-4 flex items-center justify-center flex-col"
     >
       <div class="w-full">
-        <GifContainer>
-          <Gif
-            src="https://media1.tenor.com/m/0iaAOtOyrY4AAAAC/you-need-to-relax-will-ferrell.gif"
-          />
-        </GifContainer>
+        <Gif
+          src="https://media1.tenor.com/m/0iaAOtOyrY4AAAAC/you-need-to-relax-will-ferrell.gif"
+        />
       </div>
 
       <div class="text-center text-neutral-600 text-sm text-balance">

@@ -3,9 +3,13 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: false },
-  modules: ["@nuxt/fonts", "@pinia/nuxt"],
+  modules: ["@nuxt/fonts", "@nuxt/image", "@pinia/nuxt"],
 
-  css: ["vue-progressive-image/style.css", "~/assets/css/main.css"],
+  css: ["~/assets/css/main.css"],
+
+  image: {
+    provider: "none",
+  },
 
   runtimeConfig: {
     public: {
