@@ -7,10 +7,6 @@ export default defineNuxtConfig({
 
   css: ["~/assets/css/main.css"],
 
-  image: {
-    provider: "none",
-  },
-
   runtimeConfig: {
     public: {
       tenorKey: "",
