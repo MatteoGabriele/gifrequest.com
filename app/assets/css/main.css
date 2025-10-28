@@ -13,3 +13,7 @@ body {
   --progressive-image-main-fade-speed: 0;
   --progressive-image-placeholder-fade-speed: 0;
 }
+
+.v-progressive-image-placeholder {
+  @apply w-full h-full;
+}
