@@ -10,23 +10,18 @@ if (error.value) {
   throw createError(error.value);
 }
 
-gameStore.correctRepositoryName = data.value[0]?.name;
-
-watch(
-  () => data.value,
-  (value) => {
-    gameStore.correctRepositoryName = shuffle(value)[0]?.name;
-  }
-);
+gameStore.repos = data.value;
 
 const handleNext = async () => {
   gameStore.reset({ keepStreak: true });
   await refresh();
+  gameStore.repos = data.value;
 };
 
 const handleRetry = async () => {
   gameStore.reset();
   await refresh();
+  gameStore.repos = data.value;
 };
 </script>
 

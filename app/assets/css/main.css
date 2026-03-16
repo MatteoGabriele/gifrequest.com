@@ -7,9 +7,3 @@
 body {
   @apply h-full;
 }
-
-:root {
-  --progressive-image-blur: 0;
-  --progressive-image-main-fade-speed: 0;
-  --progressive-image-placeholder-fade-speed: 0;
-}

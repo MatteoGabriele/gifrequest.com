@@ -1,7 +1,13 @@
 import { defineStore } from "pinia";
 
 export const useGameStore = defineStore("game", () => {
+  const repos = ref<Repo[]>([]);
+
   const correctRepositoryName = ref<string | null | undefined>();
+  watch(repos, () => {
+    correctRepositoryName.value = shuffle(repos.value)[0]?.name;
+  });
+
   const selectedRepositoryName = ref<string | null | undefined>();
 
   const hasSubmitted = ref<boolean>(false);
@@ -42,5 +48,6 @@ export const useGameStore = defineStore("game", () => {
     submit,
     streakCounter,
     reset,
+    repos,
   };
 });
