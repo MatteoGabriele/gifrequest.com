@@ -17,6 +17,8 @@ export default defineNuxtConfig({
     },
   },
 
+  plugins: ["~/plugins/plausible.client"],
+
   app: {
     head: {
       title: "GifRequest — Merge Your Memes",
@@ -51,5 +53,15 @@ export default defineNuxtConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    optimizeDeps: {
+      include: [
+        "@phosphor-icons/vue",
+        "vue-confetti-explosion",
+        "clsx",
+        "tailwind-merge",
+        "lodash.snakecase",
+        "@plausible-analytics/tracker",
+      ],
+    },
   },
 });
